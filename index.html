@@ -70,6 +70,17 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Menlo','Consolas','D2Coding',
 #nano-footer{background:#161b22;color:#8b949e;padding:8px 16px;border-top:1px solid #30363d;display:flex;gap:24px}
 .nano-key{color:#0d1117;background:#8b949e;padding:0 4px;border-radius:2px;font-size:12px}
 
+/* === Less pager === */
+#less-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0d1117;z-index:100;flex-direction:column}
+#less-overlay.active{display:flex}
+#less-header{background:#161b22;color:#c9d1d9;padding:8px 16px;text-align:center;border-bottom:1px solid #30363d}
+#less-content{flex:1;background:#0d1117;color:#c9d1d9;padding:16px;font:inherit;overflow-y:auto;white-space:pre-wrap;word-wrap:break-word;line-height:1.5}
+#less-footer{background:#161b22;color:#8b949e;padding:8px 16px;border-top:1px solid #30363d;display:flex;gap:24px;font-size:13px}
+#less-search{display:none;position:absolute;bottom:40px;left:0;right:0;background:#161b22;border-top:1px solid #30363d;padding:8px 16px}
+#less-search input{background:#0d1117;border:1px solid #30363d;color:#c9d1d9;font:inherit;padding:4px 8px;border-radius:4px;width:300px;outline:none}
+#less-search input:focus{border-color:#58a6ff}
+.less-highlight{background:#ffd43b;color:#0d1117;border-radius:2px}
+
 /* === Celebration overlay === */
 #celebration{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:rgba(0,0,0,.85);flex-direction:column;align-items:center;justify-content:center;cursor:pointer}
 #celebration.active{display:flex}
@@ -152,6 +163,22 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Menlo','Consolas','D2Coding',
   <div id="nano-footer">
     <span><span class="nano-key">Ctrl+X</span> Exit</span>
     <span><span class="nano-key">Ctrl+S</span> Save</span>
+  </div>
+</div>
+
+<!-- Less pager -->
+<div id="less-overlay">
+  <div id="less-header"></div>
+  <div id="less-content" tabindex="0"></div>
+  <div id="less-search"><span>/</span> <input id="less-search-input" type="text" spellcheck="false" autocomplete="off"></div>
+  <div id="less-footer">
+    <span><span class="nano-key">q</span> quit</span>
+    <span><span class="nano-key">↑↓</span> scroll</span>
+    <span><span class="nano-key">Space</span> page down</span>
+    <span><span class="nano-key">b</span> page up</span>
+    <span><span class="nano-key">/</span> search</span>
+    <span><span class="nano-key">n</span> next match</span>
+    <span><span class="nano-key">g/G</span> top/bottom</span>
   </div>
 </div>
 
@@ -261,6 +288,59 @@ const POLLY_TREASURE=`
   ✧ ˚ ✦ ˚ ✧
 `;
 
+// ===== Game Texts (bilingual) =====
+const HP=HOME_PATH;
+const T={kor:{
+CLUE01:"대학 도서관을 뒤지던 도중에 당신은 준킴의 오래된 일기장을 발견했다. 일기장 마지막에는 다음과 같은 흥미로운 이야기가 적혀 있었다:\n\n00년 00월 00일, 예쁜꼬마선충 폴리와 나는 우리의 보물을 아무도 찾지 못할 곳에 묻어놨다! 폴리 말로는 대학 안에 있는 장소만 해도 60,000곳이 넘기 때문에 결코 찾을 수 없을 거라고 한다.\n\n안타까운 점은 학부를 졸업했을 때 하필이면 대학원, 그것도 생명과 대학원에 가야겠다는 잘못된 선택을 한 것이다. 덕분에 기억력이 예전 같지 못해 나중에 보물 위치를 기억할 수 있을지 모르겠다.\n그래서 나중에 내 보물을 다시 찾을 수 있도록, 오직 박사과정이면서 생물정보마술사인 나만이 이해할 수 있는 몇 개의 단서(Clue) 안에 이 보물의 행방을 남겨두었다.\n이제 두 번째 단서를 찾으려면 물의 탑(water tower)으로 들어가 서쪽으로 세 걸음, 남쪽으로 다섯 걸음 가서 땅을 파내라!\n쾅!\n시바님, 무슨 일입니까?\n준님! 교수님들이 오고 계세요!\n이런, 교수들이 우릴 발견했다. 학부생들을 탈출시키려던 우리의 꿈은 이렇게 무너지는 건가. 도망쳐, 폴리! 생명과는 안 돼...\n\n더 자세한 이야기를 듣고 싶어 사서에게 물어보니, 준킴은 한때 이 대학에서 가장 촉망받는 대학원생이었지만, 생명과의 한계를 극복할 순 없었다고 한다. 그의 기록은 오직 그가 남긴 단서밖에 없는 셈이었다.\n(팩트: 이렇게 징징거렸지만 지금은 운 좋게 교수돼서 잘 먹고 잘 살고 있음)\n\n문제를 풀기 전에, 먼저 단서를 담아둘 'toteBag' 디렉토리를 하나 만들자(mkdir).\n방금 찾아낸 이 첫번째 단서를 그 디렉토리 안에 복사하고(cp), 디렉토리 안에 잘 들어갔는지 확인하자(ls).\n\n이제 물의 탑으로 출발하라!\n",
+CLUE02:"다음 단서는 99% 에탄올 병으로 위장한 오래된 럼주 통(rumBarrel) 근처에 숨겨두었다. 럼주 통을 기준으로 북쪽으로 두 걸음, 서쪽으로 네 걸음 가면 찾을 수 있다.\n참고로 시약병 사이에 단서를 숨겨두려다 보니 작게 쪼그라뜨리고 압축해서 집어넣어둘 수밖에 없었다. 단서를 읽으려면 gunzip을 써서 압축을 풀도록 하자.\n지금 읽고 있는 이 단서를 가방(toteBag) 안에 복사(cp)해두는 것도 잊지 말 것!\n",
+CLUE03:"이 동네에 컴퓨터를 잘 아는 다른 과학 덕후들이 많다 보니, 이들이 우리가 남긴 단서를 쫓아올까봐 예쁜꼬마선충 폴리가 걱정하고 있다.\n하지만 걱정하지 마라. 손은 눈보다 빠르니까. 이들을 속일 심산으로, 우린 99개의 빈 종이를 섞어두고, 딱 1개에만 단서를 적어 신문가판대(newsAgent) 안에 숨겨뒀다.\nls를 잘 사용할 줄 아는 우리만이 이 단서를 찾을 수 있을 것이다. 신문가판대 안에서 남쪽으로 다섯 걸음, 서쪽으로 한 걸음 내딛자.\n",
+CLUE04:"이런, 세포 미디어 갈아줘야 할 시간이다.\n어떻게든 컬쳐룸에 바로 찾아가야 하는데...\n다행히 다음 단서가 있는 컬쳐룸 위치를 정확히 어디에 있는지 알고 있다.\ncd 치고 다음 문구를 붙여넣으면 그쪽으로 단번에 갈 수 있다.\n"+HP+"/harbour/westThreeSteps/northTwoSteps\n",
+CLUE05:"아주 예쁜 진주(Perl)가 해안(beach)에 떨어져 있다. perl을 이용하면 이 진주에 담긴 단서를 꺼낼 수 있을 것 같다.\n이 정도면 우릴 쫓아오는 사람들을 속일 수 있을 거다. 동쪽으로 한 걸음, 남쪽으로 한 걸음.\n",
+CLUE06_OUT:"이거 정말이지 예쁜 진주(perl)로군! 잘만 팔면 대학원 탈출해도 되겠는 걸? 계속하기 전에 이 내용을 기록해두는 게 좋겠다.\n방금 친 perl 명령어를 다시 실행하고, 지금 화면에 뜬 이 내용(STDOUT)을 잡아서 (> 또는 redirection이라고도 부름) Clue06_S.txt 라는 이름을 지닌 파일에 집어넣도록 하자.\n그 뒤에 이 단서를 가방(toteBag)에 복사하면 되겠군.\n모두 정리되면 다리(bridge)로 가서 북쪽으로 다섯 걸음, 서쪽으로 한 걸음 이동하자.\n",
+CLUE07:"진정한 생물정보마술사만이 키보드 탭(Tab) 키를 이용해 파일 이름을 쉽게 완성할 수 있는 법! 이를 시험하고자 엄청나게 이름이 긴 파일을 만들었다.\n탭 안 쓰고 직접 하나하나 따라 치려면 손가락 떨어질 걸? 소나무(pineTree)로 가라. 북쪽으로 다섯 걸음 향한 뒤, 깃대 그림자와 평행하게 3시 방향(3'o clock)으로 향해라.\n",
+CLUE08:"탭 만세! 탭이란 얼마나 소중한 버튼인가. 두 말할 필요가 없다. 탭이 없었다면 파이펫 아닌 키보드로도 관절염에 걸릴 수 있다는 걸 배우게 됐겠지. 이제 앵무새를 구하러 가자(parrotShop). 동쪽으로 세 걸음 간 뒤, 눈을 감고 파도 소리가 들려오는 곳을 향해 걸어라.\n",
+CLUE09:"다른 박사과정 대학원생들이 탭 안 쓰고 명령어 일일이 치고 있는 걸 보고 있자면, 새벽에 티타임 갖는 걸 지켜보는 것만큼이나 너어어무 고통스럽다.\n다시 한 번 해보자. 등대(lightHouse)로 가서 서쪽으로 다섯 걸음, 다시 하지(summer solstice)에 최초로 비치는 빛이 만나는 지점을 향해 나아가라.\n",
+CLUE10:"좋아, 지금까지 뭔가를 만드는 일을 해봤다. 이제 박사과정들이 뭔가(우리 인생 같은 거?)를 지우는 데 얼마나 일가견 있는지 한번 살펴보자.\n보철 기구 파는 가게(prostheticShop)로 가자. 북쪽으로 한 걸음, 동쪽으로 네 걸음.\n",
+FALSE11:"아무것도 없잖아!!! 펄 스크립트를 시도해보자(perl).\n",
+CLUE11:"다음 단서를 얻으려면 파일을 이동시키거나 이름을 바꿔야 한다. 거대한 바위(largeStone)로 향해 남쪽으로 두 걸음, 서쪽으로 네 걸음 가라.\n석영(quartz) 덩어리가 보일 것이다. 이걸 가방(toteBag)에 복사하지 말고 이동(mv)시키도록 하자.\n가방으로 이동하고 나면 파일 이름을 'Clue12_5.txt' 으로 바꿔보자(mv).\n",
+QUARTZ:"다음 단서는 파일 시작 부분이 아니라 가장 끝 부분에서 확인할 수 있다(tail). 파일도 아주 기이이이일게 만들어뒀다.\n자전거 길(bikePath)로 가자. 남쪽으로 세 걸음, 동쪽으로 한 걸음.\n",
+CLUE13_TOP:"여긴 아무것도 없다. tail 을 시도해보자.\n",
+CLUE13_BOTTOM:"훌륭해! 이제 이 단서를 가방에 복사하고, 가방 디렉토리로 이동해 단서 파일들 이름의 마지막 문자를 살펴보자. 우리가 지금까지 읽은 단서들처럼, 장소와 방향, 몇 걸음 가야 하는지에 대한 정보가 적혀 있을 것이다.\n",
+XMARKS:"'JUN'이라는 글자가 커다랗게 새겨진 오래된 나무 상자를 발견했다.\n상자 앞에는 '폴리는 답을 알고 있다.'라는 문장이 적힌 번호 자물쇠가 달려있다.\n이 파일에서 polly 라는 문자열을 검색하고(grep), 확인한 숫자를 'key.txt' 파일에 적어두자(nano 또는 vi 등).\n그 뒤 'openLock.pl' perl 스크립트를 실행하자.\n",
+TREASURE:"보물을 발견했다!\n보물을 준비해놓지 않았다면 혼내주도록 하자.\n또 항상 기억하도록 하자. 훌륭한 생물정보마술사는 포트 로더데일 합의를 준수하고,\n자신들의 데이터/연구를 공유한다는 것을! (보물 찾기 종료. 수고하셨습니다!)\n",
+PERL11_RM:"잘못된 단서(false clue)를 제거하고(rm) 다시 시도하자.\n",
+PERL11_DEL1:"아이고, 이걸 지워버리다니! 뭔 생각인가 대체? 빠르게 휴지통으로 가서 다시 살려내라!\n",
+PERL11_DEL2:"장난임 깔깔 이미 그 파일은 아예 완전히 사라졌다. UNIX에서 뭔가를 삭제한다면 진짜 그냥 사라진다.\n휴지통에서 복구하거나 취소하는 것 따위는 불가능하다. rm -rf 잘못 건들지 말어! 손모가지 날아가붕게.\n진짜 단서 11을 살펴보려면 네 가방(toteBag)을 확인해봐라(cd).\n",
+LOCK_OK:"철컥, 자물쇠가 풀렸다. 이제 상자를 열어보자(ls).\n",
+LOCK_FAIL:"잘못된 비밀번호입니다.\n",
+LOCK_NOKEY:"key.txt 파일을 찾을 수 없거나 비어 있습니다.",
+},eng:{
+CLUE01:"While rummaging through the university library, you stumbled upon an old diary belonging to Jun Kim. On the last page was a fascinating entry:\n\nYear XX, Month XX, Day XX. Polly the pretty little nematode and I buried our treasure somewhere no one will ever find! Polly says there are over 60,000 places on campus, so it can never be found.\n\nThe sad part is, after graduating, I made the terrible choice to go to grad school — the biology department, no less. My memory isn't what it used to be, so I may not remember the treasure's location later.\nSo I've left the treasure's whereabouts hidden in a series of clues that only a PhD student and bioinformatics wizard like me could decipher.\nTo find the second clue, enter the water tower, go three steps west and five steps south, then dig!\nBANG!\nShiba, what happened?!\nJun! The professors are coming!\nOh no, they found us. Our dream of freeing the undergrads — is it over? Run, Polly! Not the biology department...\n\nYou asked the librarian for details. She said Jun Kim was once the most promising grad student here, but couldn't overcome the limits of the biology department. All that remain are the clues he left behind.\n(Fact: Despite all this whining, he's now a professor living quite comfortably.)\n\nBefore we begin, create a 'toteBag' directory to store your clues (mkdir).\nCopy this first clue into that directory (cp), and verify it's there (ls).\n\nNow head to the water tower!\n",
+CLUE02:"The next clue is hidden near an old rum barrel (rumBarrel) disguised as a 99% ethanol bottle. From the rum barrel, go two steps north and four steps west.\nI had to squeeze and compress the clue to hide it among the reagent bottles. Use gunzip to decompress it.\nDon't forget to copy (cp) this clue into your bag (toteBag)!\n",
+CLUE03:"There are other science nerds around who know their way around computers, and Polly is worried they might follow our clues.\nBut don't worry — the hand is quicker than the eye. To throw them off, we mixed in 99 blank papers and wrote the real clue on just one, hidden at the newsstand (newsAgent).\nOnly those who know how to use ls will find it. From the newsstand, go five steps south and one step west.\n",
+CLUE04:"Oh no, it's time to change the cell media!\nI need to get to the culture room right away...\nLuckily, I know exactly where the next clue is.\nType cd and paste the following to jump there instantly:\n"+HP+"/harbour/westThreeSteps/northTwoSteps\n",
+CLUE05:"A beautiful pearl (Perl) is lying on the beach. Using perl, we should be able to extract the clue hidden inside.\nThis should throw off anyone following us. One step east, one step south.\n",
+CLUE06_OUT:"What a beautiful pearl! If I sell this, maybe I can escape grad school! Better write this down before moving on.\nRun the perl command again and capture the output (STDOUT) using > (also called redirection) into a file named Clue06_S.txt.\nThen copy this clue to your bag (toteBag).\nOnce done, head to the bridge — five steps north, one step west.\n",
+CLUE07:"Only a true bioinformatics wizard uses the Tab key to auto-complete file names! To test this, I've created a file with an incredibly long name.\nGood luck typing it out without Tab! Go to the pine tree (pineTree), five steps north, then follow parallel to the shadow from the flagpole at 3 o'clock.\n",
+CLUE08:"Long live Tab! How precious that little key is. Without it, you'd learn that keyboards can cause arthritis too, not just pipettes. Now let's go get a parrot (parrotShop). Three steps east, then close your eyes and walk towards the sound of the waves.\n",
+CLUE09:"Watching other PhD students type every command letter by letter without Tab is as painful as watching someone have tea time at dawn.\nLet's try once more. Go to the lighthouse (lightHouse), five steps west, then head towards where the first ray of light meets the path at the summer solstice.\n",
+CLUE10:"Good, we've practiced creating things. Now let's see how PhD students excel at deleting things (like our lives, perhaps?).\nHead to the prosthetic shop (prostheticShop). One step north, four steps east.\n",
+FALSE11:"There's nothing here!!! Try the perl script (perl).\n",
+CLUE11:"To get the next clue, you'll need to move or rename a file. Head to the large stone (largeStone), two steps south, four steps west.\nYou'll see a piece of quartz. Don't copy it — move it (mv) to your bag (toteBag).\nOnce it's in your bag, rename it to 'Clue12_5.txt' (mv).\n",
+QUARTZ:"The next clue is at the very end of a file, not the beginning (tail). And I've made the file reeeally long.\nHead to the bike path (bikePath). Three steps south, one step east.\n",
+CLUE13_TOP:"Nothing here. Try tail.\n",
+CLUE13_BOTTOM:"Excellent! Now copy this clue to your bag, go to the bag directory, and look at the last character of each clue filename. Like the clues before, it tells you a place, direction, and number of steps.\n",
+XMARKS:"You found an old wooden chest with 'JUN' carved in large letters.\nA combination lock on the front reads: 'Polly knows the answer.'\nSearch this file for the string 'polly' (grep), note the number, and write it in 'key.txt' (nano or vi).\nThen run the 'openLock.pl' perl script.\n",
+TREASURE:"You found the treasure!\nIf you didn't prepare a real treasure, you're in trouble.\nAlways remember: a great bioinformatics wizard follows the Fort Lauderdale Agreement\nand shares their data and research! (Treasure hunt complete. Great job!)\n",
+PERL11_RM:"Remove the false clue (rm) and try again.\n",
+PERL11_DEL1:"Oh no, you deleted it?! What were you thinking? Quick, go to the recycle bin and recover it!\n",
+PERL11_DEL2:"Just kidding LOL. That file is completely gone. In UNIX, when you delete something, it's truly gone.\nThere's no recycle bin, no undo. Be careful with rm -rf! You could lose everything.\nTo see the real Clue 11, check your bag (toteBag) (cd).\n",
+LOCK_OK:"Click! The lock opens. Now let's see what's inside (ls).\n",
+LOCK_FAIL:"Wrong password.\n",
+LOCK_NOKEY:"Could not find key.txt or it is empty.",
+}};
+function rc(text){return text.replace(/__([A-Z0-9_]+)__/g,(m,k)=>(T[lang]&&T[lang][k])||m);}
+
 // ===== State =====
 const foundClues=new Array(14).fill(false);
 let pollyMoodTimer;
@@ -368,7 +448,7 @@ const PLACES=["pineTree","largeStone","blueHouse","church","pub","boat","smallSt
 const DIRS=["eastOneStep","eastTwoSteps","eastThreeSteps","eastFourSteps","eastFiveSteps","southOneStep","southTwoSteps","southThreeSteps","southFourSteps","southFiveSteps","westOneStep","westTwoSteps","westThreeSteps","westFourSteps","westFiveSteps","northOneStep","northTwoSteps","northThreeSteps","northFourSteps","northFiveSteps"];
 const DIRS2=[...DIRS,"closeEyesAndWalkTowardsTheSoundOfTheWaves","atThreeOClockFollowParallelToTheShadowFromTheFlagPole","atTheSummerSolsticeDigWhereTheFirstRayOfLightMeetsThePath"];
 const HOME_PATH='/home/user/treasurehunt';
-const CMDS=["cat","cd","clear","cp","echo","grep","gunzip","head","help","history","ls","man","mkdir","mv","nano","perl","pwd","reset","rm","tail","touch","vi","whoami"];
+const CMDS=["cat","cd","clear","cp","echo","grep","gunzip","head","help","history","less","ls","man","mkdir","more","mv","nano","perl","pwd","reset","rm","tail","touch","vi","whoami"];
 
 // ===== Virtual File System =====
 const root={type:'dir',name:'/',parent:null,children:{}};
@@ -402,84 +482,30 @@ function fixParents(node){for(const c of Object.values(node.children)){c.parent=
 function setupGame(){
   homeNode=mkdirp(HOME_PATH);cwd=homeNode;prevCwd=homeNode;
   for(const place of PLACES){const pn=mkNode(homeNode,place,'dir');for(const d of DIRS){const dn=mkNode(pn,d,'dir');for(const d2 of DIRS2)mkNode(dn,d2,'dir');}}
-  mkNode(homeNode,'Clue01_S.txt','file',
-"대학 도서관을 뒤지던 도중에 당신은 준킴의 오래된 일기장을 발견했다. 일기장 마지막에는 다음과 같은 흥미로운 이야기가 적혀 있었다:\n\n"+
-"00년 00월 00일, 예쁜꼬마선충 폴리와 나는 우리의 보물을 아무도 찾지 못할 곳에 묻어놨다! 폴리 말로는 대학 안에 있는 장소만 해도 60,000곳이 넘기 때문에 결코 찾을 수 없을 거라고 한다.\n\n"+
-"안타까운 점은 학부를 졸업했을 때 하필이면 대학원, 그것도 생명과 대학원에 가야겠다는 잘못된 선택을 한 것이다. 덕분에 기억력이 예전 같지 못해 나중에 보물 위치를 기억할 수 있을지 모르겠다.\n"+
-"그래서 나중에 내 보물을 다시 찾을 수 있도록, 오직 박사과정이면서 생물정보마술사인 나만이 이해할 수 있는 몇 개의 단서(Clue) 안에 이 보물의 행방을 남겨두었다.\n"+
-"이제 두 번째 단서를 찾으려면 물의 탑(water tower)으로 들어가 서쪽으로 세 걸음, 남쪽으로 다섯 걸음 가서 땅을 파내라!\n"+
-"쾅!\n시바님, 무슨 일입니까?\n준님! 교수님들이 오고 계세요!\n"+
-"이런, 교수들이 우릴 발견했다. 학부생들을 탈출시키려던 우리의 꿈은 이렇게 무너지는 건가. 도망쳐, 폴리! 생명과는 안 돼...\n\n"+
-"더 자세한 이야기를 듣고 싶어 사서에게 물어보니, 준킴은 한때 이 대학에서 가장 촉망받는 대학원생이었지만, 생명과의 한계를 극복할 순 없었다고 한다. 그의 기록은 오직 그가 남긴 단서밖에 없는 셈이었다.\n"+
-"(팩트: 이렇게 징징거렸지만 지금은 운 좋게 교수돼서 잘 먹고 잘 살고 있음)\n\n"+
-"문제를 풀기 전에, 먼저 단서를 담아둘 'toteBag' 디렉토리를 하나 만들자(mkdir).\n"+
-"방금 찾아낸 이 첫번째 단서를 그 디렉토리 안에 복사하고(cp), 디렉토리 안에 잘 들어갔는지 확인하자(ls).\n\n이제 물의 탑으로 출발하라!\n");
-
-  const c2=resolve('waterTower/westThreeSteps/southFiveSteps');
-  mkNode(c2,'Clue02_W.txt','file',
-"다음 단서는 99% 에탄올 병으로 위장한 오래된 럼주 통(rumBarrel) 근처에 숨겨두었다. 럼주 통을 기준으로 북쪽으로 두 걸음, 서쪽으로 네 걸음 가면 찾을 수 있다.\n"+
-"참고로 시약병 사이에 단서를 숨겨두려다 보니 작게 쪼그라뜨리고 압축해서 집어넣어둘 수밖에 없었다. 단서를 읽으려면 gunzip을 써서 압축을 풀도록 하자.\n"+
-"지금 읽고 있는 이 단서를 가방(toteBag) 안에 복사(cp)해두는 것도 잊지 말 것!\n");
-
-  const c3=resolve('rumBarrel/northTwoSteps/westFourSteps');
-  mkNode(c3,'Clue03_O.txt.gz','file',
-"이 동네에 컴퓨터를 잘 아는 다른 과학 덕후들이 많다 보니, 이들이 우리가 남긴 단서를 쫓아올까봐 예쁜꼬마선충 폴리가 걱정하고 있다.\n"+
-"하지만 걱정하지 마라. 손은 눈보다 빠르니까. 이들을 속일 심산으로, 우린 99개의 빈 종이를 섞어두고, 딱 1개에만 단서를 적어 신문가판대(newsAgent) 안에 숨겨뒀다.\n"+
-"ls를 잘 사용할 줄 아는 우리만이 이 단서를 찾을 수 있을 것이다. 신문가판대 안에서 남쪽으로 다섯 걸음, 서쪽으로 한 걸음 내딛자.\n");
-
+  mkNode(homeNode,'Clue01_S.txt','file','__CLUE01__');
+  mkNode(resolve('waterTower/westThreeSteps/southFiveSteps'),'Clue02_W.txt','file','__CLUE02__');
+  mkNode(resolve('rumBarrel/northTwoSteps/westFourSteps'),'Clue03_O.txt.gz','file','__CLUE03__');
   const c4dir=resolve('newsAgent/southFiveSteps/westOneStep');
   for(let i=0;i<=100;i++)mkNode(c4dir,'Clue04_R_'+i+'.txt','file','');
-  c4dir.children['Clue04_R_78.txt'].content=
-"이런, 세포 미디어 갈아줘야 할 시간이다.\n어떻게든 컬쳐룸에 바로 찾아가야 하는데...\n"+
-"다행히 다음 단서가 있는 컬쳐룸 위치를 정확히 어디에 있는지 알고 있다.\ncd 치고 다음 문구를 붙여넣으면 그쪽으로 단번에 갈 수 있다.\n"+
-HOME_PATH+"/harbour/westThreeSteps/northTwoSteps\n";
-
-  mkNode(resolve('harbour/westThreeSteps/northTwoSteps'),'Clue05_D.txt','file',
-"아주 예쁜 진주(Perl)가 해안(beach)에 떨어져 있다. perl을 이용하면 이 진주에 담긴 단서를 꺼낼 수 있을 것 같다.\n"+
-"이 정도면 우릴 쫓아오는 사람들을 속일 수 있을 거다. 동쪽으로 한 걸음, 남쪽으로 한 걸음.\n");
-
+  c4dir.children['Clue04_R_78.txt'].content='__CLUE04__';
+  mkNode(resolve('harbour/westThreeSteps/northTwoSteps'),'Clue05_D.txt','file','__CLUE05__');
   mkNode(resolve('beach/eastOneStep/southOneStep'),'Clue06.pl','file','__PERL_CLUE06__');
-
-  mkNode(resolve('bridge/northFiveSteps/westOneStep'),'Clue07_H.txt','file',
-"진정한 생물정보마술사만이 키보드 탭(Tab) 키를 이용해 파일 이름을 쉽게 완성할 수 있는 법! 이를 시험하고자 엄청나게 이름이 긴 파일을 만들었다.\n"+
-"탭 안 쓰고 직접 하나하나 따라 치려면 손가락 떨어질 걸? 소나무(pineTree)로 가라. 북쪽으로 다섯 걸음 향한 뒤, 깃대 그림자와 평행하게 3시 방향(3'o clock)으로 향해라.\n");
-
-  mkNode(resolve('pineTree/northFiveSteps/atThreeOClockFollowParallelToTheShadowFromTheFlagPole'),'Clue08_O.txt','file',
-"탭 만세! 탭이란 얼마나 소중한 버튼인가. 두 말할 필요가 없다. 탭이 없었다면 파이펫 아닌 키보드로도 관절염에 걸릴 수 있다는 걸 배우게 됐겠지. "+
-"이제 앵무새를 구하러 가자(parrotShop). 동쪽으로 세 걸음 간 뒤, 눈을 감고 파도 소리가 들려오는 곳을 향해 걸어라.\n");
-
-  mkNode(resolve('parrotShop/eastThreeSteps/closeEyesAndWalkTowardsTheSoundOfTheWaves'),'Clue09_P.txt','file',
-"다른 박사과정 대학원생들이 탭 안 쓰고 명령어 일일이 치고 있는 걸 보고 있자면, 새벽에 티타임 갖는 걸 지켜보는 것만큼이나 너어어무 고통스럽다.\n"+
-"다시 한 번 해보자. 등대(lightHouse)로 가서 서쪽으로 다섯 걸음, 다시 하지(summer solstice)에 최초로 비치는 빛이 만나는 지점을 향해 나아가라.\n");
-
-  mkNode(resolve('lightHouse/westFiveSteps/atTheSummerSolsticeDigWhereTheFirstRayOfLightMeetsThePath'),'Clue10_5.txt','file',
-"좋아, 지금까지 뭔가를 만드는 일을 해봤다. 이제 박사과정들이 뭔가(우리 인생 같은 거?)를 지우는 데 얼마나 일가견 있는지 한번 살펴보자.\n"+
-"보철 기구 파는 가게(prostheticShop)로 가자. 북쪽으로 한 걸음, 동쪽으로 네 걸음.\n");
-
+  mkNode(resolve('bridge/northFiveSteps/westOneStep'),'Clue07_H.txt','file','__CLUE07__');
+  mkNode(resolve('pineTree/northFiveSteps/atThreeOClockFollowParallelToTheShadowFromTheFlagPole'),'Clue08_O.txt','file','__CLUE08__');
+  mkNode(resolve('parrotShop/eastThreeSteps/closeEyesAndWalkTowardsTheSoundOfTheWaves'),'Clue09_P.txt','file','__CLUE09__');
+  mkNode(resolve('lightHouse/westFiveSteps/atTheSummerSolsticeDigWhereTheFirstRayOfLightMeetsThePath'),'Clue10_5.txt','file','__CLUE10__');
   const c11dir=resolve('prostheticShop/northOneStep/eastFourSteps');
-  mkNode(c11dir,'falseClue11.txt','file',"아무것도 없잖아!!! 펄 스크립트를 시도해보자(perl).\n");
+  mkNode(c11dir,'falseClue11.txt','file','__FALSE11__');
   mkNode(c11dir,'realClue11.pl','file','__PERL_REALCLUE11__');
-  mkNode(resolve('prostheticShop/southThreeSteps/westThreeSteps'),'Clue11_N.txt','file',
-"다음 단서를 얻으려면 파일을 이동시키거나 이름을 바꿔야 한다. 거대한 바위(largeStone)로 향해 남쪽으로 두 걸음, 서쪽으로 네 걸음 가라.\n"+
-"석영(quartz) 덩어리가 보일 것이다. 이걸 가방(toteBag)에 복사하지 말고 이동(mv)시키도록 하자.\n"+
-"가방으로 이동하고 나면 파일 이름을 'Clue12_5.txt' 으로 바꿔보자(mv).\n");
-
+  mkNode(resolve('prostheticShop/southThreeSteps/westThreeSteps'),'Clue11_N.txt','file','__CLUE11__');
   const c12dir=resolve('largeStone/southTwoSteps/westFourSteps');
-  mkNode(c12dir,'quartz.txt','file',
-"다음 단서는 파일 시작 부분이 아니라 가장 끝 부분에서 확인할 수 있다(tail). 파일도 아주 기이이이일게 만들어뒀다.\n자전거 길(bikePath)로 가자. 남쪽으로 세 걸음, 동쪽으로 한 걸음.\n");
+  mkNode(c12dir,'quartz.txt','file','__QUARTZ__');
   for(const s of ["grey","purple","white","rolling","roses","mason","granite","grit","sedimentary","igneous","metamorphic","marble","brown","bladder","kidney","rosetta","blarney","head","sand","lime"])
     mkNode(c12dir,s+'.txt','file','');
-
-  let c13='여긴 아무것도 없다. tail 을 시도해보자.\n';
-  for(let i=0;i<500;i++)c13+='\n';
-  c13+='훌륭해! 이제 이 단서를 가방에 복사하고, 가방 디렉토리로 이동해 단서 파일들 이름의 마지막 문자를 살펴보자. 우리가 지금까지 읽은 단서들처럼, 장소와 방향, 몇 걸음 가야 하는지에 대한 정보가 적혀 있을 것이다.\n';
+  let c13='__CLUE13_TOP__';for(let i=0;i<500;i++)c13+='\n';c13+='__CLUE13_BOTTOM__';
   mkNode(resolve('bikePath/southThreeSteps/eastOneStep'),'Clue13_W.txt','file',c13);
-
   const finalDir=resolve('swordShop/northFiveSteps/westFiveSteps');
-  let xc="'JUN'이라는 글자가 커다랗게 새겨진 오래된 나무 상자를 발견했다.\n"+
-"상자 앞에는 '폴리는 답을 알고 있다.'라는 문장이 적힌 번호 자물쇠가 달려있다.\n"+
-"이 파일에서 polly 라는 문자열을 검색하고(grep), 확인한 숫자를 'key.txt' 파일에 적어두자(nano 또는 vi 등).\n"+
-"그 뒤 'openLock.pl' perl 스크립트를 실행하자.\n";
+  let xc='__XMARKS__';
   const abc='abcdefghijklmnopqrstuvwxyz';
   for(let i=0;i<563;i++){let a=abc[Math.floor(Math.random()*26)],b=abc[Math.floor(Math.random()*26)],c=abc[Math.floor(Math.random()*26)];if(a+b+c==='lly')continue;xc+='po'+a+b+c+'\t'+Math.ceil(Math.random()*100)+'\n';}
   xc+='polly\t42\n';
@@ -591,7 +617,7 @@ const cmdHandlers={
   cat(args){
     if(!args.length)return'cat: missing operand';
     let out=[];
-    for(const a of args){const n=resolve(a);if(!n)return'cat: '+a+': No such file or directory';if(n.type==='dir')return'cat: '+a+': Is a directory';out.push(n.content);detectClue('cat',a);}
+    for(const a of args){const n=resolve(a);if(!n)return'cat: '+a+': No such file or directory';if(n.type==='dir')return'cat: '+a+': Is a directory';out.push(rc(n.content));detectClue('cat',a);}
     return out.join('');
   },
   head(args){
@@ -600,7 +626,7 @@ const cmdHandlers={
     if(!files.length)return'head: missing operand';
     const f=resolve(files[0]);if(!f)return'head: cannot open \''+files[0]+'\': No such file or directory';
     if(f.type==='dir')return'head: error reading \''+files[0]+'\': Is a directory';
-    return f.content.split('\n').slice(0,n).join('\n');
+    return rc(f.content).split('\n').slice(0,n).join('\n');
   },
   tail(args){
     let n=10;const files=[];
@@ -609,7 +635,7 @@ const cmdHandlers={
     const f=resolve(files[0]);if(!f)return'tail: cannot open \''+files[0]+'\': No such file or directory';
     if(f.type==='dir')return'tail: error reading \''+files[0]+'\': Is a directory';
     detectClue('tail',files[0]);
-    const lines=f.content.split('\n');return lines.slice(Math.max(0,lines.length-n)).join('\n');
+    const lines=rc(f.content).split('\n');return lines.slice(Math.max(0,lines.length-n)).join('\n');
   },
   mkdir(args){
     if(!args.length)return'mkdir: missing operand';
@@ -642,7 +668,7 @@ const cmdHandlers={
     if(args.length<2)return'Usage: grep PATTERN FILE';
     const pattern=args[0],files=args.slice(1);let out=[];
     for(const f of files){const n=resolve(f);if(!n){out.push('grep: '+f+': No such file or directory');continue;}if(n.type==='dir'){out.push('grep: '+f+': Is a directory');continue;}
-    const lines=n.content.split('\n');for(const line of lines){if(line.includes(pattern)){
+    const lines=rc(n.content).split('\n');for(const line of lines){if(line.includes(pattern)){
       const hl=esc(line).replace(new RegExp(esc(pattern).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g'),'<span style="color:#f85149;font-weight:bold">'+esc(pattern)+'</span>');
       out.push(files.length>1?'<span class="dir">'+esc(f)+':</span>'+hl:hl);}}}
     return{text:out.join('\n'),html:true};
@@ -658,31 +684,28 @@ const cmdHandlers={
     const n=resolve(args[0]);if(!n)return'Can\'t open perl script "'+args[0]+'": No such file or directory';
     if(n.content==='__PERL_CLUE06__'){
       markClue(5);
-      return"이거 정말이지 예쁜 진주(perl)로군! 잘만 팔면 대학원 탈출해도 되겠는 걸? 계속하기 전에 이 내용을 기록해두는 게 좋겠다.\n"+
-"방금 친 perl 명령어를 다시 실행하고, 지금 화면에 뜬 이 내용(STDOUT)을 잡아서 (> 또는 redirection이라고도 부름) Clue06_S.txt 라는 이름을 지닌 파일에 집어넣도록 하자.\n"+
-"그 뒤에 이 단서를 가방(toteBag)에 복사하면 되겠군.\n모두 정리되면 다리(bridge)로 가서 북쪽으로 다섯 걸음, 서쪽으로 한 걸음 이동하자.\n";
+      return T[lang].CLUE06_OUT;
     }
     if(n.content==='__PERL_REALCLUE11__'){
-      if(n.parent.children['falseClue11.txt'])return"잘못된 단서(false clue)를 제거하고(rm) 다시 시도하자.\n";
+      if(n.parent.children['falseClue11.txt'])return T[lang].PERL11_RM;
       const clue11=resolve(HOME_PATH+'/prostheticShop/southThreeSteps/westThreeSteps/Clue11_N.txt');
       const bag=resolve('toteBag',homeNode);
       if(clue11&&bag&&bag.type==='dir')mkNode(bag,'Clue11_N.txt','file',clue11.content);
-      setTimeout(()=>{print("장난임 깔깔 이미 그 파일은 아예 완전히 사라졌다. UNIX에서 뭔가를 삭제한다면 진짜 그냥 사라진다.\n"+
-"휴지통에서 복구하거나 취소하는 것 따위는 불가능하다. rm -rf 잘못 건들지 말어! 손모가지 날아가붕게.\n진짜 단서 11을 살펴보려면 네 가방(toteBag)을 확인해봐라(cd).\n");},2000);
-      return"아이고, 이걸 지워버리다니! 뭔 생각인가 대체? 빠르게 휴지통으로 가서 다시 살려내라!\n";
+      setTimeout(()=>{print(T[lang].PERL11_DEL2);},2000);
+      return T[lang].PERL11_DEL1;
     }
     if(n.content==='__PERL_OPENLOCK__'){
-      const kf=resolve('key.txt',n.parent);if(!kf||!kf.content)return'could not find key.txt or key is empty';
+      const kf=resolve('key.txt',n.parent);if(!kf||!kf.content)return T[lang].LOCK_NOKEY;
       if(kf.content.match(/42/)){
-        const treasure="보물을 발견했다!\n보물을 준비해놓지 않았다면 혼내주도록 하자.\n"+
-"또 항상 기억하도록 하자. 훌륭한 생물정보마술사는 포트 로더데일 합의를 준수하고,\n자신들의 데이터/연구를 공유한다는 것을! (보물 찾기 종료. 수고하셨습니다!)\n";
-        writeFile('openTheBox.txt',treasure,n.parent);
-        return"철컥, 자물쇠가 풀렸다. 이제 상자를 열어보자(ls).\n";
+        writeFile('openTheBox.txt','__TREASURE__',n.parent);
+        return T[lang].LOCK_OK;
       }
-      return"잘못된 비밀번호입니다.\n";
+      return T[lang].LOCK_FAIL;
     }
     return'perl: cannot execute script';
   },
+  less(args){if(!args.length)return'Missing filename';openLess(args[0]);},
+  more(args){if(!args.length)return'Missing filename';openLess(args[0]);},
   nano(args){openNano(args[0]||'');},
   vi(args){openNano(args[0]||'');},
   clear(){outputEl.innerHTML='';},
@@ -693,17 +716,18 @@ const cmdHandlers={
     setupGame();updatePrompt();updateSidebar();setPollyMood('normal');showWelcome();
   },
   help(){
+    const k=lang==='kor';
     return{text:
-'<span class="clue-text">━━━ 사용 가능한 명령어 ━━━</span>\n\n'+
-'<span class="dir">탐색:</span>     cd [경로]        디렉토리 이동\n            pwd              현재 위치 출력\n            ls [옵션] [경로]  디렉토리 내용 보기 (-l, -a, -S)\n\n'+
-'<span class="dir">파일:</span>     cat [파일]       파일 내용 출력\n            head [-n N] 파일  파일 앞부분 출력\n            tail [-n N] 파일  파일 뒷부분 출력\n'+
-'            cp 원본 대상      파일 복사\n            mv 원본 대상      파일 이동/이름변경\n            rm 파일           파일 삭제\n'+
-'            mkdir 이름        디렉토리 생성\n            touch 이름        빈 파일 생성\n            echo 텍스트       텍스트 출력 (> 리다이렉션 가능)\n            nano/vi 파일      텍스트 편집기\n\n'+
-'<span class="dir">검색:</span>     grep 패턴 파일    파일에서 문자열 검색\n\n'+
-'<span class="dir">압축:</span>     gunzip 파일.gz   압축 해제\n\n'+
-'<span class="dir">실행:</span>     perl 스크립트.pl  Perl 스크립트 실행\n\n'+
-'<span class="dir">기타:</span>     clear / history / reset\n\n'+
-'<span class="system">팁: Tab 키로 자동완성, ↑↓ 키로 이전 명령어</span>\n',html:true};
+'<span class="clue-text">━━━ '+(k?'사용 가능한 명령어':'Available Commands')+' ━━━</span>\n\n'+
+'<span class="dir">'+(k?'탐색':'Nav')+':</span>      cd [path]        '+(k?'디렉토리 이동':'Change directory')+'\n            pwd              '+(k?'현재 위치 출력':'Print working directory')+'\n            ls [-laS] [path] '+(k?'파일 목록':'List files')+'\n\n'+
+'<span class="dir">'+(k?'파일':'File')+':</span>      cat [file]       '+(k?'파일 내용 출력':'Print file contents')+'\n            head/tail file   '+(k?'앞/뒷부분 출력':'First/last lines')+'\n            less [file]      '+(k?'페이저로 보기':'View in pager')+'\n'+
+'            cp src dst       '+(k?'복사':'Copy')+'\n            mv src dst       '+(k?'이동/이름변경':'Move/rename')+'\n            rm file          '+(k?'삭제':'Delete')+'\n'+
+'            mkdir name       '+(k?'디렉토리 생성':'Create dir')+'\n            nano/vi file     '+(k?'편집기':'Editor')+'\n            echo text > file '+(k?'리다이렉션':'Redirect')+'\n\n'+
+'<span class="dir">'+(k?'검색':'Search')+':</span>    grep pattern file  '+(k?'문자열 검색':'Search text')+'\n'+
+'<span class="dir">'+(k?'압축':'Zip')+':</span>      gunzip file.gz   '+(k?'압축 해제':'Decompress')+'\n'+
+'<span class="dir">'+(k?'실행':'Run')+':</span>      perl script.pl   '+(k?'스크립트 실행':'Run script')+'\n\n'+
+'<span class="dir">'+(k?'기타':'Etc')+':</span>      clear / history / reset\n\n'+
+'<span class="system">'+(k?'팁: Tab 키로 자동완성, ↑↓ 키로 이전 명령어':'Tip: Tab to auto-complete, ↑↓ for command history')+'</span>\n',html:true};
   },
   man(args){
     if(!args.length)return'What manual page do you want?';
@@ -719,6 +743,7 @@ const cmdHandlers={
       head:'HEAD(1)\n\n    head [-n N] file\n    파일 처음 N줄 출력. 기본 10줄',
       gunzip:'GUNZIP(1)\n\n    gunzip file.gz\n    .gz 압축 해제',
       perl:'PERL(1)\n\n    perl script.pl\n    Perl 스크립트 실행',
+      less:'LESS(1)\n\n    less [file]\n    페이저. q 종료, / 검색, n 다음, Space 다음쪽, b 이전쪽',
       nano:'NANO(1)\n\n    nano [file]\n    편집기. Ctrl+S 저장, Ctrl+X 닫기',
       mkdir:'MKDIR(1)\n\n    mkdir name\n    디렉토리 생성',
       touch:'TOUCH(1)\n\n    touch file\n    빈 파일 생성',
@@ -750,6 +775,68 @@ document.getElementById('nano-content').addEventListener('keydown',function(e){
   if(e.ctrlKey&&e.key==='x'){e.preventDefault();closeNano(true);}
   if(e.ctrlKey&&e.key==='s'){e.preventDefault();writeFile(nanoPath,this.value);document.getElementById('nano-header').textContent='  GNU nano 7.2          '+nanoPath+' (saved)';}
   if(e.key==='Tab'){e.preventDefault();const s=this.selectionStart;this.value=this.value.substring(0,s)+'\t'+this.value.substring(this.selectionEnd);this.selectionStart=this.selectionEnd=s+1;}
+});
+
+// ===== Less Pager =====
+let lessSearchTerm='';
+function openLess(fname){
+  const n=resolve(fname);
+  if(!n){print('less: '+fname+': No such file or directory');return;}
+  if(n.type==='dir'){print('less: '+fname+': Is a directory');return;}
+  detectClue('cat',fname);
+  const overlay=document.getElementById('less-overlay');
+  const content=document.getElementById('less-content');
+  const header=document.getElementById('less-header');
+  header.textContent=fname;
+  content.innerHTML=esc(rc(n.content));
+  lessSearchTerm='';
+  document.getElementById('less-search').style.display='none';
+  overlay.classList.add('active');
+  content.scrollTop=0;
+  content.focus();
+}
+function closeLess(){
+  document.getElementById('less-overlay').classList.remove('active');
+  document.getElementById('less-search').style.display='none';
+  cmdInput.focus();
+}
+function lessDoSearch(term){
+  const content=document.getElementById('less-content');
+  const raw=content.textContent;
+  if(!term){content.innerHTML=esc(raw);return;}
+  lessSearchTerm=term;
+  const escaped=term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const re=new RegExp('('+escaped+')','gi');
+  content.innerHTML=esc(raw).replace(re,'<span class="less-highlight">$1</span>');
+  const first=content.querySelector('.less-highlight');
+  if(first)first.scrollIntoView({block:'center'});
+}
+function lessNextMatch(){
+  const content=document.getElementById('less-content');
+  const highlights=content.querySelectorAll('.less-highlight');
+  if(!highlights.length)return;
+  const scrollTop=content.scrollTop;
+  for(const h of highlights){
+    if(h.offsetTop>scrollTop+10){h.scrollIntoView({block:'center'});return;}
+  }
+  highlights[0].scrollIntoView({block:'center'});
+}
+document.getElementById('less-content').addEventListener('keydown',function(e){
+  const el=this;
+  const searchBox=document.getElementById('less-search');
+  if(e.key==='q'){e.preventDefault();closeLess();return;}
+  if(e.key==='/'){e.preventDefault();searchBox.style.display='block';document.getElementById('less-search-input').value='';document.getElementById('less-search-input').focus();return;}
+  if(e.key==='n'){e.preventDefault();lessNextMatch();return;}
+  if(e.key===' '){e.preventDefault();el.scrollBy(0,el.clientHeight-40);return;}
+  if(e.key==='b'){e.preventDefault();el.scrollBy(0,-(el.clientHeight-40));return;}
+  if(e.key==='g'&&!e.shiftKey){e.preventDefault();el.scrollTop=0;return;}
+  if(e.key==='G'||e.key==='g'&&e.shiftKey){e.preventDefault();el.scrollTop=el.scrollHeight;return;}
+  if(e.key==='ArrowDown'){e.preventDefault();el.scrollBy(0,20);return;}
+  if(e.key==='ArrowUp'){e.preventDefault();el.scrollBy(0,-20);return;}
+});
+document.getElementById('less-search-input').addEventListener('keydown',function(e){
+  if(e.key==='Enter'){e.preventDefault();lessDoSearch(this.value);document.getElementById('less-search').style.display='none';document.getElementById('less-content').focus();}
+  if(e.key==='Escape'){e.preventDefault();document.getElementById('less-search').style.display='none';document.getElementById('less-content').focus();}
 });
 
 // ===== Tab Completion =====
@@ -794,17 +881,18 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape'){const ov=do
 
 // ===== Init =====
 function showWelcome(){
+  const k=lang==='kor';
   printHTML(
 '<span class="clue-text">╔══════════════════════════════════════════════════════════════════╗</span>\n'+
-'<span class="clue-text">║      보물찾기 유닉스 튜토리얼  (Treasure Hunt Unix Tutorial)      ║</span>\n'+
+'<span class="clue-text">║      '+(k?'보물찾기 유닉스 튜토리얼  (Treasure Hunt Unix Tutorial)':'Treasure Hunt Unix Tutorial  (보물찾기 유닉스 튜토리얼)')+'      ║</span>\n'+
 '<span class="clue-text">║                                                                  ║</span>\n'+
 '<span class="clue-text">║   Original: Stephan J Sanders (UCSF / Woods Hole MBL)            ║</span>\n'+
 '<span class="clue-text">║   Korean: Jun Kim  ·  Web: Interactive Browser Terminal           ║</span>\n'+
 '<span class="clue-text">╚══════════════════════════════════════════════════════════════════╝</span>\n\n'+
-'환영합니다! 이 터미널에서 유닉스 명령어를 연습하며 보물을 찾아보세요.\n\n'+
-'시작하려면 <span class="exec">cat Clue01_S.txt</span> 를 입력하세요.\n'+
-'<span class="system">도움말: help  |  명령어 설명: man [명령어]  |  게임 재시작: reset</span>\n'+
-'<span class="system">← 오른쪽 패널에서 폴리가 힌트를 알려줍니다!</span>\n');
+(k?'환영합니다! 이 터미널에서 유닉스 명령어를 연습하며 보물을 찾아보세요.':'Welcome! Practice Unix commands in this terminal and find the treasure.')+'\n\n'+
+(k?'시작하려면':'To start, type')+' <span class="exec">cat Clue01_S.txt</span> '+(k?'를 입력하세요.':'')+'\n'+
+'<span class="system">'+(k?'도움말: help  |  명령어 설명: man [명령어]  |  게임 재시작: reset':'Help: help  |  Command info: man [cmd]  |  Restart: reset')+'</span>\n'+
+'<span class="system">'+(k?'← 오른쪽 패널에서 나비가 힌트를 알려줍니다!':'← Nabi the cat gives hints in the right panel!')+'</span>\n');
 }
 
 setupGame();updatePrompt();updateSidebar();setPollyMood('normal');showWelcome();cmdInput.focus();
