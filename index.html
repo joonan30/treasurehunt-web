@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>보물찾기 - 유닉스 튜토리얼</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#c9d1d9;font-family:'Menlo','Consolas','D2Coding','Courier New',monospace;font-size:14px;height:100vh;overflow:hidden}
+#main{display:flex;height:100vh}
+
+/* === Terminal === */
+#terminal{flex:1;display:flex;flex-direction:column;min-width:0}
+#titlebar{background:#161b22;padding:8px 16px;display:flex;align-items:center;border-bottom:1px solid #30363d;user-select:none}
+.dots{display:flex;gap:6px;margin-right:16px}.dot{width:12px;height:12px;border-radius:50%}
+.dot.r{background:#f85149}.dot.y{background:#d29922}.dot.g{background:#3fb950}
+#titlebar .title{color:#8b949e;font-size:13px;flex:1;text-align:center}
+#sidebar-toggle{background:none;border:1px solid #30363d;color:#8b949e;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:16px;display:none}
+#sidebar-toggle:hover{color:#c9d1d9;border-color:#58a6ff}
+#output-wrap{flex:1;overflow-y:auto;padding:12px 16px;scroll-behavior:smooth}
+#output{white-space:pre-wrap;word-wrap:break-word;line-height:1.5}
+#input-line{display:flex;align-items:center;padding:4px 16px 12px;min-height:36px}
+#prompt{color:#3fb950;white-space:nowrap;margin-right:8px;font-weight:bold}
+#cmd-input{flex:1;background:transparent;border:none;color:#c9d1d9;font:inherit;outline:none;caret-color:#58a6ff}
+
+/* === Sidebar === */
+#sidebar{width:320px;background:#161b22;border-left:1px solid #30363d;display:flex;flex-direction:column;overflow-y:auto;transition:width .3s}
+#sidebar.collapsed{width:0;overflow:hidden;border:none}
+.sb-section{padding:16px;border-bottom:1px solid #21262d}
+.sb-title{color:#8b949e;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+
+/* Language toggle */
+.lang-btns{display:flex;gap:4px}
+.lang-btn{background:#21262d;border:1px solid #30363d;color:#8b949e;padding:4px 12px;border-radius:4px;cursor:pointer;font:inherit;font-size:12px}
+.lang-btn.active{background:#1f6feb;border-color:#1f6feb;color:#fff}
+
+/* Cat character */
+#polly-wrap{text-align:center;padding:12px 16px}
+#speech-bubble{background:#1c2333;border:1px solid #30363d;border-radius:12px;padding:12px 14px;margin-bottom:8px;position:relative;text-align:left;color:#c9d1d9;font-size:13px;line-height:1.5;min-height:60px}
+#speech-bubble::after{content:'';position:absolute;bottom:-8px;left:40px;border:8px solid transparent;border-top-color:#30363d}
+#speech-bubble::before{content:'';position:absolute;bottom:-6px;left:41px;border:7px solid transparent;border-top-color:#1c2333;z-index:1}
+#polly-art{color:#ffa94d;font-size:13px;line-height:1.2;margin:4px 0}
+#polly-name{color:#8b949e;font-size:11px;margin-top:2px}
+
+/* Progress */
+#progress-bar-wrap{background:#21262d;border-radius:8px;height:10px;overflow:hidden;margin:8px 0}
+#progress-fill{height:100%;border-radius:8px;transition:width .5s ease;background:linear-gradient(90deg,#3fb950,#1f6feb,#a855f7)}
+#progress-text{color:#8b949e;font-size:12px;margin-top:6px}
+.clue-checklist{list-style:none;margin-top:10px;font-size:12px;max-height:200px;overflow-y:auto}
+.clue-checklist li{padding:2px 0;color:#484f58}
+.clue-checklist li.found{color:#3fb950}
+.clue-checklist li.found::before{content:'✓ ';color:#3fb950}
+.clue-checklist li:not(.found)::before{content:'○ ';color:#484f58}
+
+/* Command ref */
+.cmd-ref{font-size:12px;color:#8b949e;line-height:1.6}
+.cmd-ref .cmd{color:#58a6ff}
+.cmd-ref .desc{color:#6e7681}
+
+/* === Text styles === */
+.dir{color:#58a6ff;font-weight:bold}.exec{color:#3fb950}.gz{color:#f85149}
+.error{color:#f85149}.system{color:#8b949e}.clue-text{color:#e3b341}
+.prompt-echo{color:#3fb950;font-weight:bold}.cmd-echo{color:#c9d1d9}
+
+/* === Nano editor === */
+#nano-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0d1117;z-index:100;flex-direction:column}
+#nano-overlay.active{display:flex}
+#nano-header{background:#161b22;color:#c9d1d9;padding:8px 16px;text-align:center;border-bottom:1px solid #30363d}
+#nano-content{flex:1;background:#0d1117;color:#c9d1d9;border:none;padding:16px;font:inherit;resize:none;outline:none}
+#nano-footer{background:#161b22;color:#8b949e;padding:8px 16px;border-top:1px solid #30363d;display:flex;gap:24px}
+.nano-key{color:#0d1117;background:#8b949e;padding:0 4px;border-radius:2px;font-size:12px}
+
+/* === Celebration overlay === */
+#celebration{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:rgba(0,0,0,.85);flex-direction:column;align-items:center;justify-content:center;cursor:pointer}
+#celebration.active{display:flex}
+@keyframes rainbow{
+  0%{color:#ff6b6b}14%{color:#ffa94d}28%{color:#ffd43b}42%{color:#69db7c}
+  57%{color:#4ecdc4}71%{color:#74c0fc}85%{color:#b197fc}100%{color:#ff6b6b}
+}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+@keyframes glow{0%,100%{text-shadow:0 0 10px rgba(255,107,107,.5)}50%{text-shadow:0 0 30px rgba(78,205,196,.8),0 0 60px rgba(255,215,0,.4)}}
+@keyframes sparkle{0%,100%{opacity:.3}50%{opacity:1}}
+.celeb-title{font-size:2.2em;font-weight:bold;animation:rainbow 2s linear infinite,float 3s ease-in-out infinite,glow 2s ease-in-out infinite;margin-bottom:20px;text-align:center}
+.celeb-sub{font-size:1.1em;color:#8b949e;margin-bottom:30px;text-align:center}
+.celeb-chest{color:#ffd43b;font-size:14px;line-height:1.3;margin-bottom:30px}
+.celeb-dismiss{color:#484f58;font-size:13px;animation:sparkle 2s ease-in-out infinite}
+@keyframes confetti-fall{
+  0%{transform:translateY(-10px) rotate(0);opacity:1}
+  100%{transform:translateY(100vh) rotate(720deg);opacity:0}
+}
+.confetti{position:fixed;top:-10px;z-index:201;pointer-events:none;animation:confetti-fall linear forwards}
+.star-burst{position:fixed;z-index:201;pointer-events:none;font-size:20px;animation:sparkle 1s ease-in-out infinite}
+
+/* === Responsive === */
+@media(max-width:900px){
+  #sidebar{position:fixed;right:0;top:0;bottom:0;z-index:50;width:300px;box-shadow:-4px 0 20px rgba(0,0,0,.5)}
+  #sidebar.collapsed{width:0}
+  #sidebar-toggle{display:block}
+}
+@media(max-width:600px){body{font-size:12px}#output-wrap,#input-line{padding-left:8px;padding-right:8px}#sidebar{width:260px}}
+</style>
+</head>
+<body>
+<div id="main">
+  <!-- Terminal -->
+  <div id="terminal">
+    <div id="titlebar">
+      <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+      <span class="title">treasurehunt — bash</span>
+      <button id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    </div>
+    <div id="output-wrap"><div id="output"></div></div>
+    <div id="input-line">
+      <span id="prompt"></span>
+      <input id="cmd-input" type="text" autofocus spellcheck="false" autocomplete="off" autocapitalize="off">
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <div class="sb-section">
+      <div class="lang-btns">
+        <button class="lang-btn active" onclick="setLang('kor')" id="btn-kor">한국어</button>
+        <button class="lang-btn" onclick="setLang('eng')" id="btn-eng">English</button>
+      </div>
+    </div>
+
+    <div id="polly-wrap">
+      <div id="speech-bubble"><span id="hint-text"></span></div>
+      <pre id="polly-art"></pre>
+      <div id="polly-name">Nabi (나비) 🐱</div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-title" id="lbl-progress">진행 상황</div>
+      <div id="progress-bar-wrap"><div id="progress-fill" style="width:0%"></div></div>
+      <div id="progress-text">0 / 14</div>
+      <ul class="clue-checklist" id="checklist"></ul>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-title" id="lbl-cmdref">명령어 도움말</div>
+      <div class="cmd-ref" id="cmd-ref-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Nano editor -->
+<div id="nano-overlay">
+  <div id="nano-header"></div>
+  <textarea id="nano-content" spellcheck="false"></textarea>
+  <div id="nano-footer">
+    <span><span class="nano-key">Ctrl+X</span> Exit</span>
+    <span><span class="nano-key">Ctrl+S</span> Save</span>
+  </div>
+</div>
+
+<!-- Celebration -->
+<div id="celebration" onclick="dismissCelebration()">
+  <div class="celeb-title" id="celeb-title"></div>
+  <div class="celeb-sub" id="celeb-sub"></div>
+  <pre class="celeb-chest">
+       ╔═══════════════════════════╗
+       ║    ★  ·  ✦  ·  ★  ·  ✦   ║
+       ╠═══════════════════════════╣
+       ║  ╭─────────────────────╮  ║
+       ║  │  ◆  ◇  ◆  ◇  ◆  ◇ │  ║
+       ║  │  ◇  ◆  ★  ◆  ◇  ◆ │  ║
+       ║  │  ◆  ◇  ◆  ◇  ◆  ◇ │  ║
+       ║  ╰─────────────────────╯  ║
+       ╚═══════════════════════════╝
+  </pre>
+  <div class="celeb-dismiss" id="celeb-dismiss"></div>
+</div>
+
+<script>
+// ===== Language System =====
+let lang='kor';
+const L={
+kor:{
+  progressTitle:'진행 상황',
+  cmdRefTitle:'명령어 도움말',
+  clueLabels:['단서 01: 일기장 발견','단서 02: 럼주 통','단서 03: 압축 해제','단서 04: 100개 중 하나','단서 05: 진주 발견',
+    '단서 06: Perl 실행','단서 07: Tab 완성','단서 08: Tab 연습','단서 09: Tab 마스터','단서 10: 삭제의 기술',
+    '단서 11: rm의 교훈','단서 12: 파일 이동','단서 13: 꼬리 보기','보물 발견!'],
+  cmdRef:'<span class="cmd">cd</span> <span class="desc">경로 — 이동</span>\n<span class="cmd">ls</span> <span class="desc">[-la] — 목록</span>\n<span class="cmd">cat</span> <span class="desc">파일 — 읽기</span>\n<span class="cmd">mkdir</span> <span class="desc">이름 — 폴더 생성</span>\n<span class="cmd">cp</span> <span class="desc">원본 대상 — 복사</span>\n<span class="cmd">mv</span> <span class="desc">원본 대상 — 이동</span>\n<span class="cmd">rm</span> <span class="desc">파일 — 삭제</span>\n<span class="cmd">grep</span> <span class="desc">패턴 파일 — 검색</span>\n<span class="cmd">tail</span> <span class="desc">파일 — 끝부분</span>\n<span class="cmd">gunzip</span> <span class="desc">파일.gz — 압축해제</span>\n<span class="cmd">perl</span> <span class="desc">파일.pl — 실행</span>\n<span class="cmd">nano</span> <span class="desc">파일 — 편집기</span>',
+  celebTitle:'축하합니다!\n보물을 발견했습니다!',
+  celebSub:'훌륭한 생물정보마술사가 되셨군요!',
+  celebDismiss:'아무 곳이나 클릭하여 닫기',
+  hints:[
+    '\'cat Clue01_S.txt\'를 입력해서\n첫 번째 단서를 읽어보세요!',
+    'mkdir toteBag 으로 가방을 만들고\ncp로 단서를 넣으세요.\n그리고 waterTower로 출발!',
+    'rumBarrel로 가세요!\ngunzip으로 압축을 풀어야 해요.',
+    'newsAgent로 가서 ls -la 로\n비어있지 않은 파일을 찾으세요!',
+    '절대 경로를 복사해서\ncd로 한번에 이동하세요!',
+    'beach로 가서\nperl Clue06.pl 을 실행하세요!',
+    '출력을 > 로 파일에 저장하세요!\n그 뒤 bridge로 가세요.',
+    'Tab 키를 눌러보세요!\n긴 이름도 자동완성됩니다.',
+    'Tab의 위대함! 계속 써보세요.\nparrotShop으로!',
+    'lightHouse의 아주 긴 경로도\nTab이면 문제없어요!',
+    'prostheticShop에서\nrm과 perl을 배울 시간!',
+    'toteBag에서 Clue11을 확인하세요!\nlargeStone으로 mv를 배워요.',
+    'mv로 파일을 옮기고 이름도\n바꿔보세요. 그 뒤 bikePath로!',
+    'tail로 파일 끝을 확인하세요!\n그리고 단서 이름의 비밀을...',
+    '단서 파일명의 마지막 글자들을\n모아보세요. 보물의 위치입니다!',
+  ],
+  pollyDefault:'냐옹~ 나는 나비,\n보물찾기 안내 고양이야.\n같이 모험하자!',
+  pollyExcited:'냐옹! 단서를 찾았다!\n계속 가보자! 💪',
+  pollyTreasure:'냐아아옹!! 🎉\n보물을 찾았다!!\n넌 진정한 마술사야!',
+},
+eng:{
+  progressTitle:'Progress',
+  cmdRefTitle:'Command Reference',
+  clueLabels:['Clue 01: The Diary','Clue 02: Rum Barrel','Clue 03: Decompress','Clue 04: 1 of 100','Clue 05: The Pearl',
+    'Clue 06: Run Perl','Clue 07: Tab Complete','Clue 08: Tab Practice','Clue 09: Tab Master','Clue 10: Deletion',
+    'Clue 11: rm Lesson','Clue 12: Move Files','Clue 13: Use tail','Treasure Found!'],
+  cmdRef:'<span class="cmd">cd</span> <span class="desc">path — navigate</span>\n<span class="cmd">ls</span> <span class="desc">[-la] — list files</span>\n<span class="cmd">cat</span> <span class="desc">file — read file</span>\n<span class="cmd">mkdir</span> <span class="desc">name — create dir</span>\n<span class="cmd">cp</span> <span class="desc">src dst — copy</span>\n<span class="cmd">mv</span> <span class="desc">src dst — move</span>\n<span class="cmd">rm</span> <span class="desc">file — delete</span>\n<span class="cmd">grep</span> <span class="desc">pattern file — search</span>\n<span class="cmd">tail</span> <span class="desc">file — last lines</span>\n<span class="cmd">gunzip</span> <span class="desc">file.gz — decompress</span>\n<span class="cmd">perl</span> <span class="desc">file.pl — run script</span>\n<span class="cmd">nano</span> <span class="desc">file — text editor</span>',
+  celebTitle:'Congratulations!\nYou Found the Treasure!',
+  celebSub:'You are a true bioinformatics wizard!',
+  celebDismiss:'Click anywhere to close',
+  hints:[
+    'Type \'cat Clue01_S.txt\'\nto read the first clue!',
+    'Create a toteBag with mkdir,\ncopy the clue with cp,\nthen head to waterTower!',
+    'Go to rumBarrel!\nUse gunzip to decompress.',
+    'Go to newsAgent and use ls -la\nto find the non-empty file!',
+    'Copy the absolute path\nand use cd to jump there!',
+    'Go to beach and run\nperl Clue06.pl!',
+    'Save output with > to a file!\nThen head to bridge.',
+    'Try the Tab key!\nIt auto-completes long names.',
+    'Tab is amazing! Keep using it.\nHead to parrotShop!',
+    'Even this long path to\nlightHouse is easy with Tab!',
+    'Time to learn rm and perl\nat prostheticShop!',
+    'Check Clue11 in toteBag!\nLearn mv at largeStone.',
+    'Use mv to move and rename.\nThen go to bikePath!',
+    'Use tail to see the file end!\nThen look at the clue names...',
+    'Collect the last letter of each\nclue filename. It\'s the location!',
+  ],
+  pollyDefault:'Meow~ I\'m Nabi,\nyour treasure hunt guide cat.\nLet\'s go on an adventure!',
+  pollyExcited:'Meow! You found a clue!\nKeep going! 💪',
+  pollyTreasure:'MEOOOW!! 🎉\nYou found the treasure!!\nYou\'re a true wizard!',
+}
+};
+
+const POLLY_NORMAL=`
+    /\\_/\\
+   ( •ㅅ• )
+    /    づ
+`;
+
+const POLLY_EXCITED=`
+    /\\_/\\  ♪
+   ( ^ω^ )
+   /|   |\\
+`;
+
+const POLLY_TREASURE=`
+  ✧ ˚ ✦ ˚ ✧
+    /\\_/\\
+  ✦( =^.^= )✦
+    (")_(")
+  ✧ ˚ ✦ ˚ ✧
+`;
+
+// ===== State =====
+const foundClues=new Array(14).fill(false);
+let pollyMoodTimer;
+
+function setLang(l){
+  lang=l;
+  document.getElementById('btn-kor').classList.toggle('active',l==='kor');
+  document.getElementById('btn-eng').classList.toggle('active',l==='eng');
+  updateSidebar();
+}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('collapsed');}
+
+function markClue(idx){
+  if(foundClues[idx]) return;
+  foundClues[idx]=true;
+  setPollyMood('excited');
+  updateSidebar();
+  if(idx===13) triggerCelebration();
+}
+function setPollyMood(mood){
+  clearTimeout(pollyMoodTimer);
+  const el=document.getElementById('polly-art');
+  const hint=document.getElementById('hint-text');
+  if(mood==='excited'){
+    el.textContent=POLLY_EXCITED;el.style.color='#ffd43b';
+    hint.textContent=L[lang].pollyExcited;
+    pollyMoodTimer=setTimeout(()=>{el.textContent=POLLY_NORMAL;el.style.color='#ffa94d';updateHintText();},4000);
+  } else if(mood==='treasure'){
+    el.textContent=POLLY_TREASURE;el.style.color='#ffd43b';
+    hint.textContent=L[lang].pollyTreasure;
+  } else {
+    el.textContent=POLLY_NORMAL;el.style.color='#ffa94d';
+    updateHintText();
+  }
+}
+function updateHintText(){
+  const hint=document.getElementById('hint-text');
+  const nextClue=foundClues.indexOf(false);
+  if(nextClue===-1) hint.textContent=L[lang].pollyTreasure;
+  else hint.textContent=L[lang].hints[nextClue];
+}
+function updateSidebar(){
+  document.getElementById('lbl-progress').textContent=L[lang].progressTitle;
+  document.getElementById('lbl-cmdref').textContent=L[lang].cmdRefTitle;
+  document.getElementById('cmd-ref-content').innerHTML=L[lang].cmdRef;
+  updateHintText();
+  // Progress
+  const count=foundClues.filter(Boolean).length;
+  document.getElementById('progress-fill').style.width=(count/14*100)+'%';
+  document.getElementById('progress-text').textContent=count+' / 14';
+  // Checklist
+  const cl=document.getElementById('checklist');
+  cl.innerHTML='';
+  L[lang].clueLabels.forEach((label,i)=>{
+    const li=document.createElement('li');
+    li.textContent=label;
+    if(foundClues[i]) li.classList.add('found');
+    cl.appendChild(li);
+  });
+}
+
+// ===== Celebration =====
+function triggerCelebration(){
+  setPollyMood('treasure');
+  const overlay=document.getElementById('celebration');
+  document.getElementById('celeb-title').textContent=L[lang].celebTitle;
+  document.getElementById('celeb-sub').textContent=L[lang].celebSub;
+  document.getElementById('celeb-dismiss').textContent=L[lang].celebDismiss;
+  overlay.classList.add('active');
+  // Confetti
+  const colors=['#ff6b6b','#ffa94d','#ffd43b','#69db7c','#4ecdc4','#74c0fc','#b197fc','#ff69b4','#f783ac'];
+  for(let i=0;i<80;i++){
+    const c=document.createElement('div');
+    c.className='confetti';
+    c.style.left=Math.random()*100+'%';
+    c.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
+    c.style.width=(6+Math.random()*10)+'px';
+    c.style.height=(6+Math.random()*10)+'px';
+    c.style.animationDuration=(2+Math.random()*4)+'s';
+    c.style.animationDelay=(Math.random()*3)+'s';
+    if(Math.random()>.5) c.style.borderRadius='50%';
+    overlay.appendChild(c);
+  }
+  // Stars
+  for(let i=0;i<15;i++){
+    const s=document.createElement('div');
+    s.className='star-burst';
+    s.textContent=['✦','★','✧','⋆','✶'][Math.floor(Math.random()*5)];
+    s.style.left=Math.random()*100+'%';
+    s.style.top=Math.random()*100+'%';
+    s.style.color=colors[Math.floor(Math.random()*colors.length)];
+    s.style.animationDelay=Math.random()*2+'s';
+    s.style.fontSize=(14+Math.random()*20)+'px';
+    overlay.appendChild(s);
+  }
+}
+function dismissCelebration(){
+  const ov=document.getElementById('celebration');
+  ov.classList.remove('active');
+  ov.querySelectorAll('.confetti,.star-burst').forEach(e=>e.remove());
+}
+
+// ===== Constants =====
+const PLACES=["pineTree","largeStone","blueHouse","church","pub","boat","smallStone","bridge","ashTree","beach","oakTree","waterTower","bellTower","harbour","ferryPort","busStop","library","giftShop","lab","cafe","bikeShop","bikePath","lake","piratesCove","parrotShop","prostheticShop","ophthalmologist","rumBarrel","sailMakers","plankMaker","swordShop","lightHouse","newsAgent"];
+const DIRS=["eastOneStep","eastTwoSteps","eastThreeSteps","eastFourSteps","eastFiveSteps","southOneStep","southTwoSteps","southThreeSteps","southFourSteps","southFiveSteps","westOneStep","westTwoSteps","westThreeSteps","westFourSteps","westFiveSteps","northOneStep","northTwoSteps","northThreeSteps","northFourSteps","northFiveSteps"];
+const DIRS2=[...DIRS,"closeEyesAndWalkTowardsTheSoundOfTheWaves","atThreeOClockFollowParallelToTheShadowFromTheFlagPole","atTheSummerSolsticeDigWhereTheFirstRayOfLightMeetsThePath"];
+const HOME_PATH='/home/user/treasurehunt';
+const CMDS=["cat","cd","clear","cp","echo","grep","gunzip","head","help","history","ls","man","mkdir","mv","nano","perl","pwd","reset","rm","tail","touch","vi","whoami"];
+
+// ===== Virtual File System =====
+const root={type:'dir',name:'/',parent:null,children:{}};
+let cwd,homeNode,prevCwd;
+function mkNode(p,name,type,content){const n={type,name,parent:p,children:{},content:content||''};p.children[name]=n;return n;}
+function mkdirp(ps){const parts=ps.split('/').filter(Boolean);let n=root;for(const p of parts){if(!n.children[p])mkNode(n,p,'dir');n=n.children[p];}return n;}
+function resolve(ps,from){
+  if(!ps)return from||cwd;
+  if(ps==='~')return homeNode;
+  let parts,start;
+  if(ps.startsWith('~/')){parts=ps.slice(2).split('/').filter(Boolean);start=homeNode;}
+  else if(ps.startsWith('/')){parts=ps.split('/').filter(Boolean);start=root;}
+  else{parts=ps.split('/').filter(Boolean);start=from||cwd;}
+  let n=start;
+  for(const p of parts){if(p==='.')continue;if(p==='..'){n=n.parent||n;continue;}if(!n.children||!n.children[p])return null;n=n.children[p];}
+  return n;
+}
+function getPath(node){const parts=[];let n=node;while(n&&n!==root){parts.unshift(n.name);n=n.parent;}return'/'+parts.join('/');}
+function displayPath(){const p=getPath(cwd),h=getPath(homeNode);if(p===h)return'~';if(p.startsWith(h+'/'))return'~'+p.slice(h.length);return p;}
+function writeFile(ps,content,fromNode){
+  const idx=ps.lastIndexOf('/');let dir,fname;
+  if(idx===-1){dir=fromNode||cwd;fname=ps;}else{dir=resolve(ps.slice(0,idx),fromNode);fname=ps.slice(idx+1);}
+  if(!dir||dir.type!=='dir')return false;
+  if(dir.children[fname]&&dir.children[fname].type==='dir')return false;
+  if(dir.children[fname])dir.children[fname].content=content;else mkNode(dir,fname,'file',content);return true;
+}
+function fileSize(n){return n.type==='dir'?4096:new Blob([n.content]).size;}
+function fixParents(node){for(const c of Object.values(node.children)){c.parent=node;if(c.type==='dir')fixParents(c);}}
+
+// ===== Setup Game =====
+function setupGame(){
+  homeNode=mkdirp(HOME_PATH);cwd=homeNode;prevCwd=homeNode;
+  for(const place of PLACES){const pn=mkNode(homeNode,place,'dir');for(const d of DIRS){const dn=mkNode(pn,d,'dir');for(const d2 of DIRS2)mkNode(dn,d2,'dir');}}
+  mkNode(homeNode,'Clue01_S.txt','file',
+"대학 도서관을 뒤지던 도중에 당신은 준킴의 오래된 일기장을 발견했다. 일기장 마지막에는 다음과 같은 흥미로운 이야기가 적혀 있었다:\n\n"+
+"00년 00월 00일, 예쁜꼬마선충 폴리와 나는 우리의 보물을 아무도 찾지 못할 곳에 묻어놨다! 폴리 말로는 대학 안에 있는 장소만 해도 60,000곳이 넘기 때문에 결코 찾을 수 없을 거라고 한다.\n\n"+
+"안타까운 점은 학부를 졸업했을 때 하필이면 대학원, 그것도 생명과 대학원에 가야겠다는 잘못된 선택을 한 것이다. 덕분에 기억력이 예전 같지 못해 나중에 보물 위치를 기억할 수 있을지 모르겠다.\n"+
+"그래서 나중에 내 보물을 다시 찾을 수 있도록, 오직 박사과정이면서 생물정보마술사인 나만이 이해할 수 있는 몇 개의 단서(Clue) 안에 이 보물의 행방을 남겨두었다.\n"+
+"이제 두 번째 단서를 찾으려면 물의 탑(water tower)으로 들어가 서쪽으로 세 걸음, 남쪽으로 다섯 걸음 가서 땅을 파내라!\n"+
+"쾅!\n시바님, 무슨 일입니까?\n준님! 교수님들이 오고 계세요!\n"+
+"이런, 교수들이 우릴 발견했다. 학부생들을 탈출시키려던 우리의 꿈은 이렇게 무너지는 건가. 도망쳐, 폴리! 생명과는 안 돼...\n\n"+
+"더 자세한 이야기를 듣고 싶어 사서에게 물어보니, 준킴은 한때 이 대학에서 가장 촉망받는 대학원생이었지만, 생명과의 한계를 극복할 순 없었다고 한다. 그의 기록은 오직 그가 남긴 단서밖에 없는 셈이었다.\n"+
+"(팩트: 이렇게 징징거렸지만 지금은 운 좋게 교수돼서 잘 먹고 잘 살고 있음)\n\n"+
+"문제를 풀기 전에, 먼저 단서를 담아둘 'toteBag' 디렉토리를 하나 만들자(mkdir).\n"+
+"방금 찾아낸 이 첫번째 단서를 그 디렉토리 안에 복사하고(cp), 디렉토리 안에 잘 들어갔는지 확인하자(ls).\n\n이제 물의 탑으로 출발하라!\n");
+
+  const c2=resolve('waterTower/westThreeSteps/southFiveSteps');
+  mkNode(c2,'Clue02_W.txt','file',
+"다음 단서는 99% 에탄올 병으로 위장한 오래된 럼주 통(rumBarrel) 근처에 숨겨두었다. 럼주 통을 기준으로 북쪽으로 두 걸음, 서쪽으로 네 걸음 가면 찾을 수 있다.\n"+
+"참고로 시약병 사이에 단서를 숨겨두려다 보니 작게 쪼그라뜨리고 압축해서 집어넣어둘 수밖에 없었다. 단서를 읽으려면 gunzip을 써서 압축을 풀도록 하자.\n"+
+"지금 읽고 있는 이 단서를 가방(toteBag) 안에 복사(cp)해두는 것도 잊지 말 것!\n");
+
+  const c3=resolve('rumBarrel/northTwoSteps/westFourSteps');
+  mkNode(c3,'Clue03_O.txt.gz','file',
+"이 동네에 컴퓨터를 잘 아는 다른 과학 덕후들이 많다 보니, 이들이 우리가 남긴 단서를 쫓아올까봐 예쁜꼬마선충 폴리가 걱정하고 있다.\n"+
+"하지만 걱정하지 마라. 손은 눈보다 빠르니까. 이들을 속일 심산으로, 우린 99개의 빈 종이를 섞어두고, 딱 1개에만 단서를 적어 신문가판대(newsAgent) 안에 숨겨뒀다.\n"+
+"ls를 잘 사용할 줄 아는 우리만이 이 단서를 찾을 수 있을 것이다. 신문가판대 안에서 남쪽으로 다섯 걸음, 서쪽으로 한 걸음 내딛자.\n");
+
+  const c4dir=resolve('newsAgent/southFiveSteps/westOneStep');
+  for(let i=0;i<=100;i++)mkNode(c4dir,'Clue04_R_'+i+'.txt','file','');
+  c4dir.children['Clue04_R_78.txt'].content=
+"이런, 세포 미디어 갈아줘야 할 시간이다.\n어떻게든 컬쳐룸에 바로 찾아가야 하는데...\n"+
+"다행히 다음 단서가 있는 컬쳐룸 위치를 정확히 어디에 있는지 알고 있다.\ncd 치고 다음 문구를 붙여넣으면 그쪽으로 단번에 갈 수 있다.\n"+
+HOME_PATH+"/harbour/westThreeSteps/northTwoSteps\n";
+
+  mkNode(resolve('harbour/westThreeSteps/northTwoSteps'),'Clue05_D.txt','file',
+"아주 예쁜 진주(Perl)가 해안(beach)에 떨어져 있다. perl을 이용하면 이 진주에 담긴 단서를 꺼낼 수 있을 것 같다.\n"+
+"이 정도면 우릴 쫓아오는 사람들을 속일 수 있을 거다. 동쪽으로 한 걸음, 남쪽으로 한 걸음.\n");
+
+  mkNode(resolve('beach/eastOneStep/southOneStep'),'Clue06.pl','file','__PERL_CLUE06__');
+
+  mkNode(resolve('bridge/northFiveSteps/westOneStep'),'Clue07_H.txt','file',
+"진정한 생물정보마술사만이 키보드 탭(Tab) 키를 이용해 파일 이름을 쉽게 완성할 수 있는 법! 이를 시험하고자 엄청나게 이름이 긴 파일을 만들었다.\n"+
+"탭 안 쓰고 직접 하나하나 따라 치려면 손가락 떨어질 걸? 소나무(pineTree)로 가라. 북쪽으로 다섯 걸음 향한 뒤, 깃대 그림자와 평행하게 3시 방향(3'o clock)으로 향해라.\n");
+
+  mkNode(resolve('pineTree/northFiveSteps/atThreeOClockFollowParallelToTheShadowFromTheFlagPole'),'Clue08_O.txt','file',
+"탭 만세! 탭이란 얼마나 소중한 버튼인가. 두 말할 필요가 없다. 탭이 없었다면 파이펫 아닌 키보드로도 관절염에 걸릴 수 있다는 걸 배우게 됐겠지. "+
+"이제 앵무새를 구하러 가자(parrotShop). 동쪽으로 세 걸음 간 뒤, 눈을 감고 파도 소리가 들려오는 곳을 향해 걸어라.\n");
+
+  mkNode(resolve('parrotShop/eastThreeSteps/closeEyesAndWalkTowardsTheSoundOfTheWaves'),'Clue09_P.txt','file',
+"다른 박사과정 대학원생들이 탭 안 쓰고 명령어 일일이 치고 있는 걸 보고 있자면, 새벽에 티타임 갖는 걸 지켜보는 것만큼이나 너어어무 고통스럽다.\n"+
+"다시 한 번 해보자. 등대(lightHouse)로 가서 서쪽으로 다섯 걸음, 다시 하지(summer solstice)에 최초로 비치는 빛이 만나는 지점을 향해 나아가라.\n");
+
+  mkNode(resolve('lightHouse/westFiveSteps/atTheSummerSolsticeDigWhereTheFirstRayOfLightMeetsThePath'),'Clue10_5.txt','file',
+"좋아, 지금까지 뭔가를 만드는 일을 해봤다. 이제 박사과정들이 뭔가(우리 인생 같은 거?)를 지우는 데 얼마나 일가견 있는지 한번 살펴보자.\n"+
+"보철 기구 파는 가게(prostheticShop)로 가자. 북쪽으로 한 걸음, 동쪽으로 네 걸음.\n");
+
+  const c11dir=resolve('prostheticShop/northOneStep/eastFourSteps');
+  mkNode(c11dir,'falseClue11.txt','file',"아무것도 없잖아!!! 펄 스크립트를 시도해보자(perl).\n");
+  mkNode(c11dir,'realClue11.pl','file','__PERL_REALCLUE11__');
+  mkNode(resolve('prostheticShop/southThreeSteps/westThreeSteps'),'Clue11_N.txt','file',
+"다음 단서를 얻으려면 파일을 이동시키거나 이름을 바꿔야 한다. 거대한 바위(largeStone)로 향해 남쪽으로 두 걸음, 서쪽으로 네 걸음 가라.\n"+
+"석영(quartz) 덩어리가 보일 것이다. 이걸 가방(toteBag)에 복사하지 말고 이동(mv)시키도록 하자.\n"+
+"가방으로 이동하고 나면 파일 이름을 'Clue12_5.txt' 으로 바꿔보자(mv).\n");
+
+  const c12dir=resolve('largeStone/southTwoSteps/westFourSteps');
+  mkNode(c12dir,'quartz.txt','file',
+"다음 단서는 파일 시작 부분이 아니라 가장 끝 부분에서 확인할 수 있다(tail). 파일도 아주 기이이이일게 만들어뒀다.\n자전거 길(bikePath)로 가자. 남쪽으로 세 걸음, 동쪽으로 한 걸음.\n");
+  for(const s of ["grey","purple","white","rolling","roses","mason","granite","grit","sedimentary","igneous","metamorphic","marble","brown","bladder","kidney","rosetta","blarney","head","sand","lime"])
+    mkNode(c12dir,s+'.txt','file','');
+
+  let c13='여긴 아무것도 없다. tail 을 시도해보자.\n';
+  for(let i=0;i<500;i++)c13+='\n';
+  c13+='훌륭해! 이제 이 단서를 가방에 복사하고, 가방 디렉토리로 이동해 단서 파일들 이름의 마지막 문자를 살펴보자. 우리가 지금까지 읽은 단서들처럼, 장소와 방향, 몇 걸음 가야 하는지에 대한 정보가 적혀 있을 것이다.\n';
+  mkNode(resolve('bikePath/southThreeSteps/eastOneStep'),'Clue13_W.txt','file',c13);
+
+  const finalDir=resolve('swordShop/northFiveSteps/westFiveSteps');
+  let xc="'JUN'이라는 글자가 커다랗게 새겨진 오래된 나무 상자를 발견했다.\n"+
+"상자 앞에는 '폴리는 답을 알고 있다.'라는 문장이 적힌 번호 자물쇠가 달려있다.\n"+
+"이 파일에서 polly 라는 문자열을 검색하고(grep), 확인한 숫자를 'key.txt' 파일에 적어두자(nano 또는 vi 등).\n"+
+"그 뒤 'openLock.pl' perl 스크립트를 실행하자.\n";
+  const abc='abcdefghijklmnopqrstuvwxyz';
+  for(let i=0;i<563;i++){let a=abc[Math.floor(Math.random()*26)],b=abc[Math.floor(Math.random()*26)],c=abc[Math.floor(Math.random()*26)];if(a+b+c==='lly')continue;xc+='po'+a+b+c+'\t'+Math.ceil(Math.random()*100)+'\n';}
+  xc+='polly\t42\n';
+  for(let i=0;i<325;i++){let a=abc[Math.floor(Math.random()*26)],b=abc[Math.floor(Math.random()*26)],c=abc[Math.floor(Math.random()*26)];if(a+b+c==='lly')continue;xc+='po'+a+b+c+'\t'+Math.ceil(Math.random()*100)+'\n';}
+  mkNode(finalDir,'xMarksTheSpot.txt','file',xc);
+  mkNode(finalDir,'key.txt','file','');
+  mkNode(finalDir,'openLock.pl','file','__PERL_OPENLOCK__');
+}
+
+// ===== Terminal =====
+const outputEl=document.getElementById('output');
+const outputWrap=document.getElementById('output-wrap');
+const cmdInput=document.getElementById('cmd-input');
+const promptEl=document.getElementById('prompt');
+const history=[];let histIdx=-1;
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function print(html,isHtml){const d=document.createElement('div');if(isHtml)d.innerHTML=html;else d.textContent=html;outputEl.appendChild(d);outputWrap.scrollTop=outputWrap.scrollHeight;}
+function printHTML(h){print(h,true);}
+function updatePrompt(){promptEl.textContent='user@treasurehunt:'+displayPath()+'$ ';}
+
+// ===== Clue Detection =====
+function detectClue(cmd,filename){
+  const name=filename.split('/').pop();
+  const map={
+    'Clue01_S.txt':0,'Clue02_W.txt':1,'Clue03_O.txt':2,'Clue04_R_78.txt':3,
+    'Clue05_D.txt':4,'Clue07_H.txt':6,'Clue08_O.txt':7,'Clue09_P.txt':8,
+    'Clue10_5.txt':9,'Clue11_N.txt':10,'quartz.txt':11,'Clue12_5.txt':11,
+    'openTheBox.txt':13
+  };
+  if(map[name]!==undefined) markClue(map[name]);
+  if(cmd==='tail'&&name==='Clue13_W.txt') markClue(12);
+}
+
+// ===== Commands =====
+function parseCmd(input){
+  let redirect=null,append=false;
+  if(input.includes('>>')){const p=input.split('>>');input=p[0].trim();redirect=p.slice(1).join('>>').trim();append=true;}
+  else if(input.includes('>')){const p=input.split('>');input=p[0].trim();redirect=p.slice(1).join('>').trim();append=false;}
+  const tokens=input.match(/(?:[^\s"']+|"[^"]*"|'[^']*')+/g)||[];
+  tokens.forEach((t,i)=>{if((t.startsWith('"')&&t.endsWith('"'))||(t.startsWith("'")&&t.endsWith("'")))tokens[i]=t.slice(1,-1);});
+  return{cmd:tokens[0]||'',args:tokens.slice(1),redirect,append};
+}
+function runCmd(input){
+  input=input.trim();if(!input)return;
+  history.push(input);histIdx=history.length;
+  printHTML('<span class="prompt-echo">'+esc(promptEl.textContent)+'</span><span class="cmd-echo">'+esc(input)+'</span>');
+  const p=parseCmd(input);if(!p.cmd)return;
+  const fn=cmdHandlers[p.cmd];
+  if(!fn){print(p.cmd+': command not found');return;}
+  const result=fn(p.args,p);
+  if(result===undefined)return;
+  const text=typeof result==='object'?result.text:result;
+  const html=typeof result==='object'&&result.html;
+  if(p.redirect){
+    const plain=typeof result==='object'?(result.plain||text):text;
+    const dst=resolve(p.redirect);
+    if(dst&&dst.type==='dir'){print('bash: '+p.redirect+': Is a directory');return;}
+    writeFile(p.redirect,p.append&&dst?dst.content+plain:plain);
+  } else if(text){if(html)printHTML(text);else print(text);}
+}
+
+const cmdHandlers={
+  cd(args){
+    const t=args[0];
+    if(!t||t==='~'){prevCwd=cwd;cwd=homeNode;updatePrompt();return;}
+    if(t==='-'){const o=cwd;cwd=prevCwd;prevCwd=o;updatePrompt();return;}
+    const n=resolve(t);
+    if(!n)return'bash: cd: '+t+': No such file or directory';
+    if(n.type!=='dir')return'bash: cd: '+t+': Not a directory';
+    prevCwd=cwd;cwd=n;updatePrompt();
+  },
+  ls(args){
+    let long=false,all=false,sortSize=false,tp=null;
+    for(const a of args){if(a.startsWith('-')){if(a.includes('l'))long=true;if(a.includes('a'))all=true;if(a.includes('S'))sortSize=true;}else tp=a;}
+    const dir=tp?resolve(tp):cwd;
+    if(!dir)return'ls: cannot access \''+tp+'\': No such file or directory';
+    if(dir.type!=='dir'){return dir.name;}
+    let entries=Object.values(dir.children);
+    if(!all)entries=entries.filter(e=>!e.name.startsWith('.'));
+    entries.sort((a,b)=>a.name.localeCompare(b.name));
+    if(sortSize)entries.sort((a,b)=>fileSize(b)-fileSize(a));
+    if(!entries.length)return'';
+    if(long){
+      let out='total '+entries.length+'\n';
+      out+=entries.map(e=>fmtLong(e)).join('\n');
+      return{text:out.split('\n').map(line=>{
+        const nm=line.split(/\s+/).pop();const entry=entries.find(e=>e.name===nm);
+        if(!entry)return esc(line);
+        if(entry.type==='dir')return line.replace(nm,'<span class="dir">'+esc(nm)+'</span>');
+        if(nm.endsWith('.pl'))return line.replace(nm,'<span class="exec">'+esc(nm)+'</span>');
+        if(nm.endsWith('.gz'))return line.replace(nm,'<span class="gz">'+esc(nm)+'</span>');
+        return esc(line);
+      }).join('\n'),html:true};
+    }
+    const maxL=Math.max(...entries.map(e=>e.name.length+(e.type==='dir'?1:0)))+2;
+    const cols=Math.max(1,Math.floor(80/maxL));
+    let html='';
+    entries.forEach((e,i)=>{
+      const display=esc(e.name)+(e.type==='dir'?'/':'');
+      const pad=' '.repeat(Math.max(1,maxL-display.length));
+      const cls=e.type==='dir'?'dir':e.name.endsWith('.pl')?'exec':e.name.endsWith('.gz')?'gz':'';
+      html+=cls?'<span class="'+cls+'">'+display+'</span>'+pad:display+pad;
+      if((i+1)%cols===0&&i<entries.length-1)html+='\n';
+    });
+    return{text:html,html:true};
+  },
+  pwd(){return getPath(cwd);},
+  cat(args){
+    if(!args.length)return'cat: missing operand';
+    let out=[];
+    for(const a of args){const n=resolve(a);if(!n)return'cat: '+a+': No such file or directory';if(n.type==='dir')return'cat: '+a+': Is a directory';out.push(n.content);detectClue('cat',a);}
+    return out.join('');
+  },
+  head(args){
+    let n=10;const files=[];
+    for(let i=0;i<args.length;i++){if(args[i]==='-n'&&args[i+1]){n=parseInt(args[i+1]);i++;}else if(args[i].startsWith('-')&&!isNaN(parseInt(args[i].slice(1)))){n=parseInt(args[i].slice(1));}else files.push(args[i]);}
+    if(!files.length)return'head: missing operand';
+    const f=resolve(files[0]);if(!f)return'head: cannot open \''+files[0]+'\': No such file or directory';
+    if(f.type==='dir')return'head: error reading \''+files[0]+'\': Is a directory';
+    return f.content.split('\n').slice(0,n).join('\n');
+  },
+  tail(args){
+    let n=10;const files=[];
+    for(let i=0;i<args.length;i++){if(args[i]==='-n'&&args[i+1]){n=parseInt(args[i+1]);i++;}else if(args[i].startsWith('-')&&!isNaN(parseInt(args[i].slice(1)))){n=parseInt(args[i].slice(1));}else files.push(args[i]);}
+    if(!files.length)return'tail: missing operand';
+    const f=resolve(files[0]);if(!f)return'tail: cannot open \''+files[0]+'\': No such file or directory';
+    if(f.type==='dir')return'tail: error reading \''+files[0]+'\': Is a directory';
+    detectClue('tail',files[0]);
+    const lines=f.content.split('\n');return lines.slice(Math.max(0,lines.length-n)).join('\n');
+  },
+  mkdir(args){
+    if(!args.length)return'mkdir: missing operand';
+    for(const a of args){const idx=a.lastIndexOf('/');let p,nm;if(idx===-1){p=cwd;nm=a;}else{p=resolve(a.slice(0,idx));nm=a.slice(idx+1);}
+    if(!p||p.type!=='dir')return'mkdir: cannot create directory \''+a+'\': No such file or directory';if(p.children[nm])return'mkdir: cannot create directory \''+a+'\': File exists';mkNode(p,nm,'dir');}
+  },
+  cp(args){
+    if(args.length<2)return'cp: missing operand';
+    const src=resolve(args[0]);if(!src)return'cp: cannot stat \''+args[0]+'\': No such file or directory';if(src.type==='dir')return'cp: -r not specified; omitting directory \''+args[0]+'\'';
+    const dst=resolve(args[1]);
+    if(dst&&dst.type==='dir'){mkNode(dst,src.name,'file',src.content);}
+    else{const idx=args[1].lastIndexOf('/');if(idx===-1){if(cwd.children[args[1]]&&cwd.children[args[1]].type==='dir')mkNode(cwd.children[args[1]],src.name,'file',src.content);else writeFile(args[1],src.content);}
+    else{const pdir=resolve(args[1].slice(0,idx));if(!pdir)return'cp: cannot create \''+args[1]+'\': No such file or directory';const fn=args[1].slice(idx+1);if(!fn)mkNode(pdir,src.name,'file',src.content);else writeFile(args[1],src.content);}}
+  },
+  mv(args){
+    if(args.length<2)return'mv: missing operand';
+    const src=resolve(args[0]);if(!src)return'mv: cannot stat \''+args[0]+'\': No such file or directory';
+    const dst=resolve(args[1]);
+    if(dst&&dst.type==='dir'){const nn=mkNode(dst,src.name,src.type,src.content);if(src.type==='dir'){nn.children=src.children;fixParents(nn);}delete src.parent.children[src.name];}
+    else{const idx=args[1].lastIndexOf('/');let pd,fn;if(idx===-1){pd=cwd;fn=args[1];}else{pd=resolve(args[1].slice(0,idx));fn=args[1].slice(idx+1);}
+    if(!pd)return'mv: cannot move \''+args[0]+'\': No such file or directory';const nn=mkNode(pd,fn,src.type,src.content);if(src.type==='dir'){nn.children=src.children;fixParents(nn);}delete src.parent.children[src.name];}
+  },
+  rm(args){
+    let rec=false;const files=[];for(const a of args){if(a==='-r'||a==='-rf'||a==='-fr')rec=true;else files.push(a);}
+    for(const f of files){const n=resolve(f);if(!n)return'rm: cannot remove \''+f+'\': No such file or directory';if(n.type==='dir'&&!rec)return'rm: cannot remove \''+f+'\': Is a directory';delete n.parent.children[n.name];}
+  },
+  touch(args){for(const a of args){const n=resolve(a);if(!n)writeFile(a,'');}},
+  echo(args){return args.join(' ');},
+  grep(args){
+    if(args.length<2)return'Usage: grep PATTERN FILE';
+    const pattern=args[0],files=args.slice(1);let out=[];
+    for(const f of files){const n=resolve(f);if(!n){out.push('grep: '+f+': No such file or directory');continue;}if(n.type==='dir'){out.push('grep: '+f+': Is a directory');continue;}
+    const lines=n.content.split('\n');for(const line of lines){if(line.includes(pattern)){
+      const hl=esc(line).replace(new RegExp(esc(pattern).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g'),'<span style="color:#f85149;font-weight:bold">'+esc(pattern)+'</span>');
+      out.push(files.length>1?'<span class="dir">'+esc(f)+':</span>'+hl:hl);}}}
+    return{text:out.join('\n'),html:true};
+  },
+  gunzip(args){
+    if(!args.length)return'gunzip: missing operand';
+    const n=resolve(args[0]);if(!n)return'gunzip: '+args[0]+': No such file or directory';
+    if(!args[0].endsWith('.gz')&&!n.name.endsWith('.gz'))return'gunzip: '+args[0]+': unknown suffix -- ignored';
+    const newName=n.name.slice(0,-3),content=n.content;delete n.parent.children[n.name];mkNode(n.parent,newName,'file',content);
+  },
+  perl(args){
+    if(!args.length)return'Usage: perl script.pl';
+    const n=resolve(args[0]);if(!n)return'Can\'t open perl script "'+args[0]+'": No such file or directory';
+    if(n.content==='__PERL_CLUE06__'){
+      markClue(5);
+      return"이거 정말이지 예쁜 진주(perl)로군! 잘만 팔면 대학원 탈출해도 되겠는 걸? 계속하기 전에 이 내용을 기록해두는 게 좋겠다.\n"+
+"방금 친 perl 명령어를 다시 실행하고, 지금 화면에 뜬 이 내용(STDOUT)을 잡아서 (> 또는 redirection이라고도 부름) Clue06_S.txt 라는 이름을 지닌 파일에 집어넣도록 하자.\n"+
+"그 뒤에 이 단서를 가방(toteBag)에 복사하면 되겠군.\n모두 정리되면 다리(bridge)로 가서 북쪽으로 다섯 걸음, 서쪽으로 한 걸음 이동하자.\n";
+    }
+    if(n.content==='__PERL_REALCLUE11__'){
+      if(n.parent.children['falseClue11.txt'])return"잘못된 단서(false clue)를 제거하고(rm) 다시 시도하자.\n";
+      const clue11=resolve(HOME_PATH+'/prostheticShop/southThreeSteps/westThreeSteps/Clue11_N.txt');
+      const bag=resolve('toteBag',homeNode);
+      if(clue11&&bag&&bag.type==='dir')mkNode(bag,'Clue11_N.txt','file',clue11.content);
+      setTimeout(()=>{print("장난임 깔깔 이미 그 파일은 아예 완전히 사라졌다. UNIX에서 뭔가를 삭제한다면 진짜 그냥 사라진다.\n"+
+"휴지통에서 복구하거나 취소하는 것 따위는 불가능하다. rm -rf 잘못 건들지 말어! 손모가지 날아가붕게.\n진짜 단서 11을 살펴보려면 네 가방(toteBag)을 확인해봐라(cd).\n");},2000);
+      return"아이고, 이걸 지워버리다니! 뭔 생각인가 대체? 빠르게 휴지통으로 가서 다시 살려내라!\n";
+    }
+    if(n.content==='__PERL_OPENLOCK__'){
+      const kf=resolve('key.txt',n.parent);if(!kf||!kf.content)return'could not find key.txt or key is empty';
+      if(kf.content.match(/42/)){
+        const treasure="보물을 발견했다!\n보물을 준비해놓지 않았다면 혼내주도록 하자.\n"+
+"또 항상 기억하도록 하자. 훌륭한 생물정보마술사는 포트 로더데일 합의를 준수하고,\n자신들의 데이터/연구를 공유한다는 것을! (보물 찾기 종료. 수고하셨습니다!)\n";
+        writeFile('openTheBox.txt',treasure,n.parent);
+        return"철컥, 자물쇠가 풀렸다. 이제 상자를 열어보자(ls).\n";
+      }
+      return"잘못된 비밀번호입니다.\n";
+    }
+    return'perl: cannot execute script';
+  },
+  nano(args){openNano(args[0]||'');},
+  vi(args){openNano(args[0]||'');},
+  clear(){outputEl.innerHTML='';},
+  whoami(){return'user';},
+  history(){return history.map((h,i)=>'  '+(i+1)+'  '+h).join('\n');},
+  reset(){
+    outputEl.innerHTML='';root.children={};foundClues.fill(false);
+    setupGame();updatePrompt();updateSidebar();setPollyMood('normal');showWelcome();
+  },
+  help(){
+    return{text:
+'<span class="clue-text">━━━ 사용 가능한 명령어 ━━━</span>\n\n'+
+'<span class="dir">탐색:</span>     cd [경로]        디렉토리 이동\n            pwd              현재 위치 출력\n            ls [옵션] [경로]  디렉토리 내용 보기 (-l, -a, -S)\n\n'+
+'<span class="dir">파일:</span>     cat [파일]       파일 내용 출력\n            head [-n N] 파일  파일 앞부분 출력\n            tail [-n N] 파일  파일 뒷부분 출력\n'+
+'            cp 원본 대상      파일 복사\n            mv 원본 대상      파일 이동/이름변경\n            rm 파일           파일 삭제\n'+
+'            mkdir 이름        디렉토리 생성\n            touch 이름        빈 파일 생성\n            echo 텍스트       텍스트 출력 (> 리다이렉션 가능)\n            nano/vi 파일      텍스트 편집기\n\n'+
+'<span class="dir">검색:</span>     grep 패턴 파일    파일에서 문자열 검색\n\n'+
+'<span class="dir">압축:</span>     gunzip 파일.gz   압축 해제\n\n'+
+'<span class="dir">실행:</span>     perl 스크립트.pl  Perl 스크립트 실행\n\n'+
+'<span class="dir">기타:</span>     clear / history / reset\n\n'+
+'<span class="system">팁: Tab 키로 자동완성, ↑↓ 키로 이전 명령어</span>\n',html:true};
+  },
+  man(args){
+    if(!args.length)return'What manual page do you want?';
+    const pages={
+      cd:'CD(1)\n\n    cd [directory]\n    cd ..   상위 디렉토리\n    cd ~    홈\n    cd -    이전 디렉토리',
+      ls:'LS(1)\n\n    ls [options] [path]\n    -l 상세  -a 전체  -S 크기순',
+      cat:'CAT(1)\n\n    cat [file...]\n    파일 내용을 출력한다.',
+      cp:'CP(1)\n\n    cp source dest\n    파일을 복사한다.',
+      mv:'MV(1)\n\n    mv source dest\n    파일을 이동/이름변경한다.',
+      rm:'RM(1)\n\n    rm [file]\n    파일을 삭제한다. 복구 불가!',
+      grep:'GREP(1)\n\n    grep pattern file\n    패턴과 일치하는 줄을 출력.',
+      tail:'TAIL(1)\n\n    tail [-n N] file\n    파일 마지막 N줄 출력. 기본 10줄',
+      head:'HEAD(1)\n\n    head [-n N] file\n    파일 처음 N줄 출력. 기본 10줄',
+      gunzip:'GUNZIP(1)\n\n    gunzip file.gz\n    .gz 압축 해제',
+      perl:'PERL(1)\n\n    perl script.pl\n    Perl 스크립트 실행',
+      nano:'NANO(1)\n\n    nano [file]\n    편집기. Ctrl+S 저장, Ctrl+X 닫기',
+      mkdir:'MKDIR(1)\n\n    mkdir name\n    디렉토리 생성',
+      touch:'TOUCH(1)\n\n    touch file\n    빈 파일 생성',
+      echo:'ECHO(1)\n\n    echo text\n    echo text > file  (파일에 저장)',
+    };
+    return pages[args[0]]||'No manual entry for '+args[0];
+  }
+};
+function fmtLong(e){
+  const d=e.type==='dir',p=d?'drwxr-xr-x':e.name.endsWith('.pl')?'-rwxr-xr-x':'-rw-r--r--';
+  return p+'  1 user user '+String(fileSize(e)).padStart(6)+' Apr  1 12:00 '+e.name;
+}
+
+// ===== Nano Editor =====
+let nanoPath='';
+function openNano(fname){
+  if(!fname){print('Usage: nano filename');return;}
+  nanoPath=fname;const existing=resolve(fname);
+  document.getElementById('nano-header').textContent='  GNU nano 7.2          '+fname;
+  document.getElementById('nano-content').value=existing&&existing.type==='file'?existing.content:'';
+  document.getElementById('nano-overlay').classList.add('active');
+  document.getElementById('nano-content').focus();
+}
+function closeNano(save){
+  if(save)writeFile(nanoPath,document.getElementById('nano-content').value);
+  document.getElementById('nano-overlay').classList.remove('active');cmdInput.focus();
+}
+document.getElementById('nano-content').addEventListener('keydown',function(e){
+  if(e.ctrlKey&&e.key==='x'){e.preventDefault();closeNano(true);}
+  if(e.ctrlKey&&e.key==='s'){e.preventDefault();writeFile(nanoPath,this.value);document.getElementById('nano-header').textContent='  GNU nano 7.2          '+nanoPath+' (saved)';}
+  if(e.key==='Tab'){e.preventDefault();const s=this.selectionStart;this.value=this.value.substring(0,s)+'\t'+this.value.substring(this.selectionEnd);this.selectionStart=this.selectionEnd=s+1;}
+});
+
+// ===== Tab Completion =====
+function handleTab(){
+  const val=cmdInput.value,bc=val.substring(0,cmdInput.selectionStart),parts=bc.split(/\s+/);
+  if(parts.length<=1){
+    const partial=parts[0]||'',matches=CMDS.filter(c=>c.startsWith(partial));
+    if(matches.length===1){cmdInput.value=matches[0]+' '+val.substring(cmdInput.selectionStart);setCaret(matches[0].length+1);}
+    else if(matches.length>1){const cm=commonPfx(matches);if(cm.length>partial.length){cmdInput.value=cm+val.substring(cmdInput.selectionStart);setCaret(cm.length);}
+      printHTML('<span class="prompt-echo">'+esc(promptEl.textContent)+'</span>'+esc(val));printHTML(matches.join('  '));}
+    return;
+  }
+  const partial=parts[parts.length-1],ls=partial.lastIndexOf('/');
+  let dp,np;if(ls===-1){dp=null;np=partial;}else{dp=partial.substring(0,ls)||'/';np=partial.substring(ls+1);}
+  const dir=dp?resolve(dp):cwd;if(!dir||dir.type!=='dir')return;
+  const matches=Object.keys(dir.children).filter(n=>n.startsWith(np)).sort();if(!matches.length)return;
+  const pfx=ls===-1?'':partial.substring(0,ls+1);
+  if(matches.length===1){
+    const m=matches[0],isD=dir.children[m].type==='dir';
+    parts[parts.length-1]=pfx+m+(isD?'/':' ');
+    cmdInput.value=parts.join(' ')+val.substring(cmdInput.selectionStart);setCaret(parts.join(' ').length);
+  } else {
+    const cm=commonPfx(matches);if(cm.length>np.length){parts[parts.length-1]=pfx+cm;cmdInput.value=parts.join(' ')+val.substring(cmdInput.selectionStart);setCaret(parts.join(' ').length);}
+    printHTML('<span class="prompt-echo">'+esc(promptEl.textContent)+'</span>'+esc(val));
+    printHTML(matches.map(m=>dir.children[m].type==='dir'?'<span class="dir">'+esc(m)+'/</span>':esc(m)).join('  '));
+  }
+}
+function commonPfx(a){if(!a.length)return'';let p=a[0];for(const s of a)while(!s.startsWith(p))p=p.slice(0,-1);return p;}
+function setCaret(p){cmdInput.selectionStart=cmdInput.selectionEnd=p;}
+
+// ===== Events =====
+cmdInput.addEventListener('keydown',function(e){
+  if(e.key==='Tab'){e.preventDefault();handleTab();return;}
+  if(e.key==='Enter'){e.preventDefault();const v=this.value;this.value='';runCmd(v);return;}
+  if(e.key==='ArrowUp'){e.preventDefault();if(histIdx>0){histIdx--;this.value=history[histIdx];setCaret(this.value.length);}return;}
+  if(e.key==='ArrowDown'){e.preventDefault();if(histIdx<history.length-1){histIdx++;this.value=history[histIdx];}else{histIdx=history.length;this.value='';}return;}
+  if(e.key==='l'&&e.ctrlKey){e.preventDefault();outputEl.innerHTML='';return;}
+  if(e.key==='c'&&e.ctrlKey){e.preventDefault();printHTML('<span class="prompt-echo">'+esc(promptEl.textContent)+'</span>'+esc(this.value)+'^C');this.value='';return;}
+});
+document.getElementById('output-wrap').addEventListener('click',()=>cmdInput.focus());
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){const ov=document.getElementById('celebration');if(ov.classList.contains('active'))dismissCelebration();}});
+
+// ===== Init =====
+function showWelcome(){
+  printHTML(
+'<span class="clue-text">╔══════════════════════════════════════════════════════════════════╗</span>\n'+
+'<span class="clue-text">║      보물찾기 유닉스 튜토리얼  (Treasure Hunt Unix Tutorial)      ║</span>\n'+
+'<span class="clue-text">║                                                                  ║</span>\n'+
+'<span class="clue-text">║   Original: Stephan J Sanders (UCSF / Woods Hole MBL)            ║</span>\n'+
+'<span class="clue-text">║   Korean: Jun Kim  ·  Web: Interactive Browser Terminal           ║</span>\n'+
+'<span class="clue-text">╚══════════════════════════════════════════════════════════════════╝</span>\n\n'+
+'환영합니다! 이 터미널에서 유닉스 명령어를 연습하며 보물을 찾아보세요.\n\n'+
+'시작하려면 <span class="exec">cat Clue01_S.txt</span> 를 입력하세요.\n'+
+'<span class="system">도움말: help  |  명령어 설명: man [명령어]  |  게임 재시작: reset</span>\n'+
+'<span class="system">← 오른쪽 패널에서 폴리가 힌트를 알려줍니다!</span>\n');
+}
+
+setupGame();updatePrompt();updateSidebar();setPollyMood('normal');showWelcome();cmdInput.focus();
+// Show sidebar toggle on mobile
+if(window.innerWidth<=900)document.getElementById('sidebar-toggle').style.display='block';
+window.addEventListener('resize',()=>{document.getElementById('sidebar-toggle').style.display=window.innerWidth<=900?'block':'none';});
+</script>
+</body>
+</html>
