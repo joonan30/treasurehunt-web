@@ -47,6 +47,6 @@ This is a browser-based interactive Unix command tutorial, presented as a treasu
 
 ## Credits
 
-- **Original script**: Stephan J Sanders (UCSF / Woods Hole Marine Biology Labs)
+- **Original script**: Stephan J Sanders (University of Oxford; created at MBL, Woods Hole, MA)
 - **Korean translation**: Jun Kim ([JunKimLabTutorial](https://github.com/JunKimCNU/JunKimLabTutorial))
 - **Web version**: Joon An
