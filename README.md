@@ -49,4 +49,4 @@ This is a browser-based interactive Unix command tutorial, presented as a treasu
 
 - **Original script**: Stephan J Sanders (UCSF / Woods Hole Marine Biology Labs)
 - **Korean translation**: Jun Kim ([JunKimLabTutorial](https://github.com/JunKimCNU/JunKimLabTutorial))
-- **Web version**: Interactive browser terminal adaptation
+- **Web version**: Joon An
