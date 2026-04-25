@@ -225,11 +225,10 @@ kor:{
     'Tab 키를 눌러보세요!\n긴 이름도 자동완성됩니다.',
     'Tab의 위대함! 계속 써보세요.\nparrotShop으로!',
     'lightHouse의 아주 긴 경로도\nTab이면 문제없어요!',
-    'prostheticShop에서\nrm과 perl을 배울 시간!',
-    'toteBag에서 Clue11을 확인하세요!\nlargeStone으로 mv를 배워요.',
-    'mv로 파일을 옮기고 이름도\n바꿔보세요. 그 뒤 bikePath로!',
-    'tail로 파일 끝을 확인하세요!\n그리고 단서 이름의 비밀을...',
-    '단서 파일명의 마지막 글자들을\n모아보세요. 보물의 위치입니다!',
+    'prostheticShop에서 false clue를\nrm하고 perl을 다시 실행하세요!',
+    'largeStone에서 quartz.txt를\nmv로 옮기고 이름도 바꾸세요.',
+    'bikePath로 가서 tail로\n파일 끝을 확인하세요!',
+    'toteBag의 단서 파일명에서\n번호 뒤 글자/숫자를 모아보세요!',
   ],
   pollyDefault:'냐옹~ 나는 나비,\n보물찾기 안내 고양이야.\n같이 모험하자!',
   pollyExcited:'냐옹! 단서를 찾았다!\n계속 가보자! 💪',
@@ -256,11 +255,10 @@ eng:{
     'Try the Tab key!\nIt auto-completes long names.',
     'Tab is amazing! Keep using it.\nHead to parrotShop!',
     'Even this long path to\nlightHouse is easy with Tab!',
-    'Time to learn rm and perl\nat prostheticShop!',
-    'Check Clue11 in toteBag!\nLearn mv at largeStone.',
-    'Use mv to move and rename.\nThen go to bikePath!',
-    'Use tail to see the file end!\nThen look at the clue names...',
-    'Collect the last letter of each\nclue filename. It\'s the location!',
+    'At prostheticShop, remove the\nfalse clue and rerun perl!',
+    'At largeStone, use mv to move\nquartz.txt and rename it.',
+    'Go to bikePath and use tail\nto see the end of the file!',
+    'In toteBag, collect the letters/numbers\nafter each clue number!',
   ],
   pollyDefault:'Meow~ I\'m Nabi,\nyour treasure hunt guide cat.\nLet\'s go on an adventure!',
   pollyExcited:'Meow! You found a clue!\nKeep going! 💪',
@@ -305,7 +303,7 @@ FALSE11:"아무것도 없잖아!!! 펄 스크립트를 시도해보자(perl).\n"
 CLUE11:"다음 단서를 얻으려면 파일을 이동시키거나 이름을 바꿔야 한다. 거대한 바위(largeStone)로 향해 남쪽으로 두 걸음, 서쪽으로 네 걸음 가라.\n석영(quartz) 덩어리가 보일 것이다. 이걸 가방(toteBag)에 복사하지 말고 이동(mv)시키도록 하자.\n가방으로 이동하고 나면 파일 이름을 'Clue12_5.txt' 으로 바꿔보자(mv).\n",
 QUARTZ:"다음 단서는 파일 시작 부분이 아니라 가장 끝 부분에서 확인할 수 있다(tail). 파일도 아주 기이이이일게 만들어뒀다.\n자전거 길(bikePath)로 가자. 남쪽으로 세 걸음, 동쪽으로 한 걸음.\n",
 CLUE13_TOP:"여긴 아무것도 없다. tail 을 시도해보자.\n",
-CLUE13_BOTTOM:"훌륭해! 이제 이 단서를 가방에 복사하고, 가방 디렉토리로 이동해 단서 파일들 이름의 마지막 문자를 살펴보자. 우리가 지금까지 읽은 단서들처럼, 장소와 방향, 몇 걸음 가야 하는지에 대한 정보가 적혀 있을 것이다.\n",
+CLUE13_BOTTOM:"훌륭해! 이제 이 단서를 가방에 복사하고, 가방 디렉토리로 이동해 단서 파일명에서 Clue 번호 뒤에 붙은 글자나 숫자를 살펴보자. 우리가 지금까지 읽은 단서들처럼, 장소와 방향, 몇 걸음 가야 하는지에 대한 정보가 적혀 있을 것이다.\n",
 XMARKS:"'JUN'이라는 글자가 커다랗게 새겨진 오래된 나무 상자를 발견했다.\n상자 앞에는 '폴리는 답을 알고 있다.'라는 문장이 적힌 번호 자물쇠가 달려있다.\n이 파일에서 polly 라는 문자열을 검색하고(grep), 확인한 숫자를 'key.txt' 파일에 적어두자(nano 또는 vi 등).\n그 뒤 'openLock.pl' perl 스크립트를 실행하자.\n",
 TREASURE:"보물을 발견했다!\n보물을 준비해놓지 않았다면 혼내주도록 하자.\n또 항상 기억하도록 하자. 훌륭한 생물정보마술사는 포트 로더데일 합의를 준수하고,\n자신들의 데이터/연구를 공유한다는 것을! (보물 찾기 종료. 수고하셨습니다!)\n",
 PERL11_RM:"잘못된 단서(false clue)를 제거하고(rm) 다시 시도하자.\n",
@@ -329,7 +327,7 @@ FALSE11:"There's nothing here!!! Try the perl script (perl).\n",
 CLUE11:"To get the next clue, you'll need to move or rename a file. Head to the large stone (largeStone), two steps south, four steps west.\nYou'll see a piece of quartz. Don't copy it — move it (mv) to your bag (toteBag).\nOnce it's in your bag, rename it to 'Clue12_5.txt' (mv).\n",
 QUARTZ:"The next clue is at the very end of a file, not the beginning (tail). And I've made the file reeeally long.\nHead to the bike path (bikePath). Three steps south, one step east.\n",
 CLUE13_TOP:"Nothing here. Try tail.\n",
-CLUE13_BOTTOM:"Excellent! Now copy this clue to your bag, go to the bag directory, and look at the last character of each clue filename. Like the clues before, it tells you a place, direction, and number of steps.\n",
+CLUE13_BOTTOM:"Excellent! Now copy this clue to your bag, go to the bag directory, and look at the letter or number after each Clue number in the filenames. Like the clues before, it tells you a place, direction, and number of steps.\n",
 XMARKS:"You found an old wooden chest with 'JUN' carved in large letters.\nA combination lock on the front reads: 'Polly knows the answer.'\nSearch this file for the string 'polly' (grep), note the number, and write it in 'key.txt' (nano or vi).\nThen run the 'openLock.pl' perl script.\n",
 TREASURE:"You found the treasure!\nIf you didn't prepare a real treasure, you're in trouble.\nAlways remember: a great bioinformatics wizard follows the Fort Lauderdale Agreement\nand shares their data and research! (Treasure hunt complete. Great job!)\n",
 PERL11_RM:"Remove the false clue (rm) and try again.\n",
@@ -466,12 +464,18 @@ function resolve(ps,from){
   for(const p of parts){if(p==='.')continue;if(p==='..'){n=n.parent||n;continue;}if(!n.children||!n.children[p])return null;n=n.children[p];}
   return n;
 }
+function splitTargetPath(ps,fromNode){
+  const idx=ps.lastIndexOf('/');
+  if(idx===-1)return{dir:fromNode||cwd,name:ps};
+  const dirPath=ps.slice(0,idx);
+  return{dir:ps.startsWith('/')&&idx===0?root:resolve(dirPath,fromNode),name:ps.slice(idx+1)};
+}
 function getPath(node){const parts=[];let n=node;while(n&&n!==root){parts.unshift(n.name);n=n.parent;}return'/'+parts.join('/');}
 function displayPath(){const p=getPath(cwd),h=getPath(homeNode);if(p===h)return'~';if(p.startsWith(h+'/'))return'~'+p.slice(h.length);return p;}
 function writeFile(ps,content,fromNode){
-  const idx=ps.lastIndexOf('/');let dir,fname;
-  if(idx===-1){dir=fromNode||cwd;fname=ps;}else{dir=resolve(ps.slice(0,idx),fromNode);fname=ps.slice(idx+1);}
+  const target=splitTargetPath(ps,fromNode),dir=target.dir,fname=target.name;
   if(!dir||dir.type!=='dir')return false;
+  if(!fname)return false;
   if(dir.children[fname]&&dir.children[fname].type==='dir')return false;
   if(dir.children[fname])dir.children[fname].content=content;else mkNode(dir,fname,'file',content);return true;
 }
@@ -617,7 +621,7 @@ const cmdHandlers={
   cat(args){
     if(!args.length)return'cat: missing operand';
     let out=[];
-    for(const a of args){const n=resolve(a);if(!n)return'cat: '+a+': No such file or directory';if(n.type==='dir')return'cat: '+a+': Is a directory';out.push(rc(n.content));detectClue('cat',a);}
+    for(const a of args){const n=resolve(a);if(!n)return'cat: '+a+': No such file or directory';if(n.type==='dir')return'cat: '+a+': Is a directory';if(n.name.endsWith('.gz'))return'cat: '+a+': compressed data; use gunzip first';out.push(rc(n.content));detectClue('cat',a);}
     return out.join('');
   },
   head(args){
@@ -626,6 +630,7 @@ const cmdHandlers={
     if(!files.length)return'head: missing operand';
     const f=resolve(files[0]);if(!f)return'head: cannot open \''+files[0]+'\': No such file or directory';
     if(f.type==='dir')return'head: error reading \''+files[0]+'\': Is a directory';
+    if(f.name.endsWith('.gz'))return'head: '+files[0]+': compressed data; use gunzip first';
     return rc(f.content).split('\n').slice(0,n).join('\n');
   },
   tail(args){
@@ -634,12 +639,14 @@ const cmdHandlers={
     if(!files.length)return'tail: missing operand';
     const f=resolve(files[0]);if(!f)return'tail: cannot open \''+files[0]+'\': No such file or directory';
     if(f.type==='dir')return'tail: error reading \''+files[0]+'\': Is a directory';
+    if(f.name.endsWith('.gz'))return'tail: '+files[0]+': compressed data; use gunzip first';
     detectClue('tail',files[0]);
     const lines=rc(f.content).split('\n');return lines.slice(Math.max(0,lines.length-n)).join('\n');
   },
   mkdir(args){
     if(!args.length)return'mkdir: missing operand';
-    for(const a of args){const idx=a.lastIndexOf('/');let p,nm;if(idx===-1){p=cwd;nm=a;}else{p=resolve(a.slice(0,idx));nm=a.slice(idx+1);}
+    for(const a of args){const target=splitTargetPath(a),p=target.dir,nm=target.name;
+    if(!nm)return'mkdir: cannot create directory \''+a+'\': Invalid argument';
     if(!p||p.type!=='dir')return'mkdir: cannot create directory \''+a+'\': No such file or directory';if(p.children[nm])return'mkdir: cannot create directory \''+a+'\': File exists';mkNode(p,nm,'dir');}
   },
   cp(args){
@@ -647,20 +654,20 @@ const cmdHandlers={
     const src=resolve(args[0]);if(!src)return'cp: cannot stat \''+args[0]+'\': No such file or directory';if(src.type==='dir')return'cp: -r not specified; omitting directory \''+args[0]+'\'';
     const dst=resolve(args[1]);
     if(dst&&dst.type==='dir'){mkNode(dst,src.name,'file',src.content);}
-    else{const idx=args[1].lastIndexOf('/');if(idx===-1){if(cwd.children[args[1]]&&cwd.children[args[1]].type==='dir')mkNode(cwd.children[args[1]],src.name,'file',src.content);else writeFile(args[1],src.content);}
-    else{const pdir=resolve(args[1].slice(0,idx));if(!pdir)return'cp: cannot create \''+args[1]+'\': No such file or directory';const fn=args[1].slice(idx+1);if(!fn)mkNode(pdir,src.name,'file',src.content);else writeFile(args[1],src.content);}}
+    else{const target=splitTargetPath(args[1]);if(target.name&&cwd.children[args[1]]&&cwd.children[args[1]].type==='dir')mkNode(cwd.children[args[1]],src.name,'file',src.content);
+    else{const pdir=target.dir;if(!pdir)return'cp: cannot create \''+args[1]+'\': No such file or directory';if(!target.name)mkNode(pdir,src.name,'file',src.content);else writeFile(args[1],src.content);}}
   },
   mv(args){
     if(args.length<2)return'mv: missing operand';
     const src=resolve(args[0]);if(!src)return'mv: cannot stat \''+args[0]+'\': No such file or directory';
     const dst=resolve(args[1]);
     if(dst&&dst.type==='dir'){const nn=mkNode(dst,src.name,src.type,src.content);if(src.type==='dir'){nn.children=src.children;fixParents(nn);}delete src.parent.children[src.name];}
-    else{const idx=args[1].lastIndexOf('/');let pd,fn;if(idx===-1){pd=cwd;fn=args[1];}else{pd=resolve(args[1].slice(0,idx));fn=args[1].slice(idx+1);}
-    if(!pd)return'mv: cannot move \''+args[0]+'\': No such file or directory';const nn=mkNode(pd,fn,src.type,src.content);if(src.type==='dir'){nn.children=src.children;fixParents(nn);}delete src.parent.children[src.name];}
+    else{const target=splitTargetPath(args[1]),pd=target.dir,fn=target.name;
+    if(!pd)return'mv: cannot move \''+args[0]+'\': No such file or directory';if(!fn)return'mv: cannot move \''+args[0]+'\': Invalid argument';const nn=mkNode(pd,fn,src.type,src.content);if(src.type==='dir'){nn.children=src.children;fixParents(nn);}delete src.parent.children[src.name];}
   },
   rm(args){
     let rec=false;const files=[];for(const a of args){if(a==='-r'||a==='-rf'||a==='-fr')rec=true;else files.push(a);}
-    for(const f of files){const n=resolve(f);if(!n)return'rm: cannot remove \''+f+'\': No such file or directory';if(n.type==='dir'&&!rec)return'rm: cannot remove \''+f+'\': Is a directory';delete n.parent.children[n.name];}
+    for(const f of files){const n=resolve(f);if(!n)return'rm: cannot remove \''+f+'\': No such file or directory';if(n===root)return'rm: refusing to remove \'/\'';if(n.type==='dir'&&!rec)return'rm: cannot remove \''+f+'\': Is a directory';delete n.parent.children[n.name];}
   },
   touch(args){for(const a of args){const n=resolve(a);if(!n)writeFile(a,'');}},
   echo(args){return args.join(' ');},
@@ -783,6 +790,7 @@ function openLess(fname){
   const n=resolve(fname);
   if(!n){print('less: '+fname+': No such file or directory');return;}
   if(n.type==='dir'){print('less: '+fname+': Is a directory');return;}
+  if(n.name.endsWith('.gz')){print('less: '+fname+': compressed data; use gunzip first');return;}
   detectClue('cat',fname);
   const overlay=document.getElementById('less-overlay');
   const content=document.getElementById('less-content');
